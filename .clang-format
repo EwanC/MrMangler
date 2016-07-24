@@ -1,0 +1,13 @@
+BasedOnStyle: LLVM
+IndentWidth: 4
+
+# I like pointers aligned to the left
+DerivePointerAlignment: false
+PointerAlignment: Left
+AllowShortFunctionsOnASingleLine: Empty
+UseTab: Never
+BreakBeforeBraces: Allman
+AlwaysBreakTemplateDeclarations: true
+
+# It's 2016!
+ColumnLimit: 120
