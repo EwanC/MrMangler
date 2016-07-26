@@ -1,6 +1,9 @@
+%option noyywrap
 %{
-#include "decl_header.h"
-#include "mangle.tab.h"
+#include "FuncDecl.h"
+#include "MrParser.h"
+
+#define YY_DECL extern "C" int yylex()
 %}
 %%
 "char"  {return CHAR;}

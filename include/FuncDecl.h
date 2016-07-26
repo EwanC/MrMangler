@@ -53,3 +53,5 @@ struct FuncDecl{
     const char* name;
     std::vector<FuncParam *> params;
 };
+
+FuncDecl* ParseStdin();

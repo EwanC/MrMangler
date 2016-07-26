@@ -1,14 +1,14 @@
 %{
 #include <iostream>
-#include "decl_header.h"
+#include "FuncDecl.h"
 #define YYDEBUG 0
 void yyerror(const char *s);
 
 // Defined in FLEX
-extern int yylex();
-extern int yyparse();
-extern int yydebug;
-extern FILE* yyin;
+extern "C" int yylex();
+extern "C" int yyparse();
+extern "C" int yydebug;
+extern "C" FILE* yyin;
 
 FuncDecl *func_decl = nullptr;
 %}
@@ -79,7 +79,7 @@ type_specifier
  ;
 
 %%
-int main() {
+FuncDecl* ParseStdin() {
 #if YYDEBUG == 1
     yydebug=YYDEBUG;
 #endif
@@ -87,11 +87,7 @@ int main() {
       yyparse();
     } while (!feof(yyin));
 
-    if (func_decl && func_decl->name) {
-      std::cout << func_decl->name << std::endl;
-      for(auto param : func_decl->params)
-        std::cout << param->print() << std::endl;
-    }
+    return func_decl;
 }
 
 void yyerror(const char*s) {

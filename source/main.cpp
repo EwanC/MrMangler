@@ -1,14 +1,11 @@
 #include <iostream>
-#include <string>
 
+#include "FuncDecl.h"
 
 int main()
 {
-    std::string line;
-    std::getline(std::cin, line);
-
-    // echo 
-    std::cout << line << std::endl;
+    FuncDecl* func_decl = ParseStdin();
+    std::cout << func_decl->name << std::endl;
 
     return 0;
 }
