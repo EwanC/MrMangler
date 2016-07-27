@@ -1,7 +1,20 @@
-#include <string>
+#include <cstring>
+#include <sstream>
 
-std::string mangle_itanium(std::string a)
+#include "FuncDecl.h"
+#include "MrMangler.h"
+
+std::string mangle_itanium(FuncDecl* decl)
 {
-    (void) a;
-    return "Hello itanium";
+    std::ostringstream mangled;
+    mangled << "_Z" << strlen(decl->name) << decl->name;
+
+    const std::vector<FuncParam *> &params = decl->params;
+    if (params.empty())
+    {
+       mangled << "v";
+       return mangled.str();
+    }
+
+    return mangled.str();
 }

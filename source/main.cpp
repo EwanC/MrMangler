@@ -1,11 +1,13 @@
 #include <iostream>
 
+#include "MrMangler.h"
 #include "FuncDecl.h"
 
 int main()
 {
     FuncDecl* func_decl = ParseStdin();
-    std::cout << func_decl->name << std::endl;
+    const std::string mangled_str = mangle_itanium(func_decl);
+    std::cout << mangled_str << std::endl;
 
     return 0;
 }
