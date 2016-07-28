@@ -5,5 +5,5 @@
 
 class FuncDecl;
 
-std::string mangle_itanium(FuncDecl* decl);
+std::string mangle_itanium(const FuncDecl* decl);
 #endif // MR_MANGLER_H

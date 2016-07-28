@@ -67,15 +67,15 @@ parameter_declaration
  ;
 
 type_specifier
- : VOID   {$$ = new FuncParam(); $$->type_e=literal::VOID;}
- | CHAR {$$ = new FuncParam(); $$->type_e=literal::CHAR;}
- | SHORT {$$ = new FuncParam(); $$->type_e=literal::SHORT;}
- | INT    {$$ = new FuncParam(); $$->type_e=literal::INT;}
- | LONG {$$ = new FuncParam(); $$->type_e=literal::LONG;}
- | FLOAT {$$ = new FuncParam(); $$->type_e=literal::FLOAT;}
- | DOUBLE {$$ = new FuncParam(); $$->type_e=literal::DOUBLE;}
- | UNSIGNED {$$ = new FuncParam(); $$->type_e=literal::INT;}
- | BOOL     {$$ = new FuncParam(); $$->type_e=literal::BOOL;}
+ : VOID   {$$ = new FuncParam(); $$->type_e=BuiltinType::VOID;}
+ | CHAR {$$ = new FuncParam(); $$->type_e=BuiltinType::CHAR;}
+ | SHORT {$$ = new FuncParam(); $$->type_e=BuiltinType::SHORT;}
+ | INT    {$$ = new FuncParam(); $$->type_e=BuiltinType::INT;}
+ | LONG {$$ = new FuncParam(); $$->type_e=BuiltinType::LONG;}
+ | FLOAT {$$ = new FuncParam(); $$->type_e=BuiltinType::FLOAT;}
+ | DOUBLE {$$ = new FuncParam(); $$->type_e=BuiltinType::DOUBLE;}
+ | UNSIGNED {$$ = new FuncParam(); $$->type_e=BuiltinType::INT;}
+ | BOOL     {$$ = new FuncParam(); $$->type_e=BuiltinType::BOOL;}
  ;
 
 %%

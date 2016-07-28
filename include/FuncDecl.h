@@ -1,57 +1,53 @@
 #include <vector>
 
-enum class literal {
-   CHAR,
-   DOUBLE,
-   FLOAT,
-   INT,
-   SHORT,
+enum class BuiltinType {
+   VOID,
+   WCHAR,
    BOOL,
+   CHAR,
+   SCHAR,
+   UCHAR,
+   SHORT,
+   USHORT,
+   INT,
+   UINT,
    LONG,
-   VOID
+   ULONG,
+   LONGLONG,
+   ULONGLONG,
+   INT128,
+   UINT128,
+   FLOAT,
+   DOUBLE,
+   FLOAT80,
+   FLOAT128,
+   ELLIPSIS,
+   IEEE754_16,
+   IEEE754_32,
+   IEEE754_64,
+   IEEE754_128,
+   CHAR32,
+   CHAR16,
+   AUTO,
+   NULLPTR
 };
 
 struct FuncParam {
   bool isConst;
   bool isVolatile;
   bool isPtr;
-  literal type_e;
+  bool isRef;
+  bool isRvalRef;
+  BuiltinType type_e;
 
-  FuncParam(): isConst(false), isVolatile(false), isPtr(false), type_e(literal::VOID)
+  FuncParam(): isConst(false), isVolatile(false), isPtr(false), isRef(false), isRvalRef(false), type_e(BuiltinType::VOID)
   {}
 
-  const char* print() {
-     if (literal::CHAR == type_e)
-        return "char";
-
-     if (literal::DOUBLE == type_e)
-        return "double";
-
-     if (literal::FLOAT == type_e)
-        return "float";
-
-     if (literal::INT == type_e)
-        return "int";
-
-     if (literal::SHORT == type_e)
-        return "short";
-
-     if (literal::BOOL == type_e)
-        return "bool";
-
-     if (literal::LONG == type_e)
-        return "long";
-
-     if (literal::VOID == type_e)
-        return "void";
-
-     return "puff";
-  }
 };
 
 struct FuncDecl{
     const char* name;
-    std::vector<FuncParam *> params;
+    std::vector<const FuncParam *> params;
 };
 
 FuncDecl* ParseStdin();
