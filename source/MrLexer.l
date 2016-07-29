@@ -6,16 +6,27 @@
 #define YY_DECL extern "C" int yylex()
 %}
 %%
-"char"  {return CHAR;}
+"void"      {return VOID;}
+"wchar_t"   {return WCHAR;}
+"bool"      {return BOOL;}
+"char"      {return CHAR;}
+"short"     {return SHORT;}
+"int"       {return INT;}
+"long long" {return LONGLONG;}
+"long"      {return LONG;}
+"int128"    {return INT128;}
+"float"     {return FLOAT;}
+"double"    {return DOUBLE;}
+"char32_t"  {return CHAR32;}
+"char16_t"  {return CHAR16;}
+"auto"      {return AUTO;}
+"nullptr_t" {return NULLPTR;}
+
 "const" {return CONST;}
-"double" {return DOUBLE;}
-"float" {return FLOAT;}
-"int" {return INT;}
-"long" {return LONG;}
-"short" {return SHORT;}
-"unsigned" {return UNSIGNED;}
-"void" {return VOID;}
 "volatile" {return VOLATILE;}
+
+"unsigned" {return UNSIGNED;}
+"signed" {return SIGNED;}
 
 [a-zA-Z0-9]+ {yylval.sval = strdup(yytext); return STRING_LITERAL;}
 
@@ -29,6 +40,7 @@
 "]" { return ']';}
 "{" { return '{';}
 "}" { return '}';}
+"&" { return '&';}
 
 
 [ \t\n]   ;

@@ -1,3 +1,7 @@
+#ifndef FUNC_DECL_H
+#define FUNC_DECL_H
+
+#include <cstdint>
 #include <vector>
 
 enum class BuiltinType {
@@ -5,18 +9,11 @@ enum class BuiltinType {
    WCHAR,
    BOOL,
    CHAR,
-   SCHAR,
-   UCHAR,
    SHORT,
-   USHORT,
    INT,
-   UINT,
    LONG,
-   ULONG,
    LONGLONG,
-   ULONGLONG,
    INT128,
-   UINT128,
    FLOAT,
    DOUBLE,
    FLOAT80,
@@ -33,14 +30,24 @@ enum class BuiltinType {
 };
 
 struct FuncParam {
-  bool isConst;
-  bool isVolatile;
-  bool isPtr;
-  bool isRef;
-  bool isRvalRef;
+  enum Qualifiers {
+    CONST = 0x1 << 0,
+    VOLATILE = 0x1 << 1,
+  };
+
+  enum Modifiers {
+    PTR = 0x1 << 0,
+    UNSIGNED = 0x1 << 1,
+    SIGNED = 0x1 << 2,
+    REFERENCE = 0x1 << 3,
+    RVALREF = 0x1 << 4,
+  };
+
+  uint8_t quals;
+  uint8_t mods;
   BuiltinType type_e;
 
-  FuncParam(): isConst(false), isVolatile(false), isPtr(false), isRef(false), isRvalRef(false), type_e(BuiltinType::VOID)
+  FuncParam(): quals(0), mods(0), type_e(BuiltinType::VOID)
   {}
 
 };
@@ -51,3 +58,4 @@ struct FuncDecl{
 };
 
 FuncDecl* ParseStdin();
+#endif // FUNC_DECL_H
