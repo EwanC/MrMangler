@@ -91,10 +91,14 @@ type_specifier
  ;
 
 %%
-FuncDecl* ParseStdin() {
+FuncDecl* ParseStdin(FILE* file) {
 #if YYDEBUG == 1
     yydebug=YYDEBUG;
 #endif
+
+    if (file)
+      yyin = file;
+
     do {
       yyparse();
     } while (!feof(yyin));

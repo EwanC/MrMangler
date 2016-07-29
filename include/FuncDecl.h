@@ -1,6 +1,7 @@
 #ifndef FUNC_DECL_H
 #define FUNC_DECL_H
 
+#include <cstdio>
 #include <cstdint>
 #include <vector>
 
@@ -57,5 +58,5 @@ struct FuncDecl{
     std::vector<const FuncParam *> params;
 };
 
-FuncDecl* ParseStdin();
+FuncDecl* ParseStdin(FILE* f);
 #endif // FUNC_DECL_H
