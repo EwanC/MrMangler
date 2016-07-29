@@ -26,7 +26,7 @@ mangle_fn parseArgs(int argc, char** argv)
 int main(int argc, char** argv)
 {
     mangle_fn target_mangler = &mangle_itanium;
-    if (argc > 0)
+    if (argc > 1)
         target_mangler = parseArgs(argc, argv);
 
     const FuncDecl* func_decl = ParseStdin();

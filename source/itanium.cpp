@@ -1,42 +1,128 @@
+#include <cassert>
 #include <cstring>
 #include <sstream>
 
 #include "FuncDecl.h"
 #include "MrMangler.h"
 
-std::string mangle_param(const FuncParam *p) {
-    if (BuiltinType::CHAR == p->type_e) {
-      return "c";
+std::string mangle_type(const BuiltinType t, const uint8_t mods) {
+
+    if (BuiltinType::VOID == t)
+       return "v";
+
+    if (BuiltinType::BOOL == t)
+       return "b";
+
+    if (BuiltinType::CHAR == t) {
+      if (FuncParam::UNSIGNED && mods)
+        return "h";
+      else if(FuncParam::SIGNED && mods)
+        return "a";
+      else
+        return "c";
     }
 
-    if (BuiltinType::DOUBLE == p->type_e){
+    if (BuiltinType::SHORT == t){
+      if (FuncParam::UNSIGNED && mods)
+        return "t";
+      return "s";
+    }
+
+    if (BuiltinType::INT == t){
+      if (FuncParam::UNSIGNED && mods)
+        return "j";
+      return "i";
+    }
+
+    if (BuiltinType::LONG == t){
+      if (FuncParam::UNSIGNED && mods)
+          return "m";
+      return "l";
+    }
+
+    if (BuiltinType::LONGLONG == t){
+      if (FuncParam::UNSIGNED && mods)
+          return "y";
+      return "x";
+    }
+
+    if (BuiltinType::INT128 == t){
+      if (FuncParam::UNSIGNED && mods)
+          return "o";
+      return "n";
+    }
+
+    if (BuiltinType::FLOAT == t)
+      return "f";
+
+    if (BuiltinType::DOUBLE == t)
       return "d";
 
-    }
-    if (BuiltinType::FLOAT == p->type_e){
-      return "f";
-    }
+    if (BuiltinType::FLOAT80 == t)
+      return "e";
 
-    if (BuiltinType::INT == p->type_e){
-       return "i";
-    }
+    if (BuiltinType::FLOAT128 == t)
+      return "g";
 
-    if (BuiltinType::SHORT == p->type_e){
-       return "s";
-    }
+    if (BuiltinType::ELLIPSIS == t)
+      return "z";
 
-    if (BuiltinType::BOOL == p->type_e){
-       return "b";
-    }
+    if (BuiltinType::IEEE754_16 == t)
+      return "Dh";
 
-    if (BuiltinType::LONG == p->type_e){
-       return "l";
-    }
+    if (BuiltinType::IEEE754_32 == t)
+      return "Df";
 
-    if (BuiltinType::VOID == p->type_e){
-       return "v";
-    }
+    if (BuiltinType::IEEE754_64 == t)
+      return "Dd";
 
+    if (BuiltinType::IEEE754_128 == t)
+      return "De";
+
+    if (BuiltinType::CHAR32 == t)
+      return "Di";
+
+    if (BuiltinType::CHAR16 == t)
+      return "Ds";
+
+    if (BuiltinType::AUTO == t)
+      return "Da";
+
+    if (BuiltinType::NULLPTR == t)
+      return "Dn";
+
+    assert(false && "Unknown type");
+}
+
+std::string mangle_qualifier(const uint8_t qual_bitfield)
+{
+    std::string mangled;
+    if (qual_bitfield & FuncParam::CONST)
+        mangled.push_back('K');
+    if (qual_bitfield & FuncParam::VOLATILE)
+        mangled.push_back('V');
+
+    return mangled;
+}
+
+std::string mangle_modifier(const uint8_t mod_bitfield)
+{
+    std::string mangled;
+    if (mod_bitfield & FuncParam::PTR)
+        mangled.push_back('P');
+    if (mod_bitfield & FuncParam::REFERENCE)
+        mangled.push_back('R');
+    if (mod_bitfield & FuncParam::RVALREF)
+        mangled.push_back('O');
+
+    return mangled;
+}
+
+std::string mangle_param(const FuncParam *p) {
+    std::string mangled = mangle_modifier(p->mods);
+    mangled.append(mangle_qualifier(p->quals));
+    mangled.append(mangle_type(p->type_e, p->mods));
+    return mangled;
 }
 
 std::string mangle_itanium(const FuncDecl* decl)
