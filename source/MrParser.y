@@ -54,7 +54,10 @@ typed_decl
  ;
 
 parameter_type_list
- : parameter_list ',' ELLIPSIS {$$ = $1;}
+ : parameter_list ',' ELLIPSIS {$$ = $1;
+                                auto param = new FuncParam();
+                                param->type_e=BuiltinType::ELLIPSIS;
+                                $$->params.push_back(param);}
  | parameter_list {$$ = $1;}
  ;
 
@@ -70,15 +73,21 @@ parameter_declaration
  ;
 
 type_specifier
- : VOID   {$$ = new FuncParam(); $$->type_e=BuiltinType::VOID;}
- | CHAR {$$ = new FuncParam(); $$->type_e=BuiltinType::CHAR;}
- | SHORT {$$ = new FuncParam(); $$->type_e=BuiltinType::SHORT;}
- | INT    {$$ = new FuncParam(); $$->type_e=BuiltinType::INT;}
- | LONG {$$ = new FuncParam(); $$->type_e=BuiltinType::LONG;}
- | FLOAT {$$ = new FuncParam(); $$->type_e=BuiltinType::FLOAT;}
- | DOUBLE {$$ = new FuncParam(); $$->type_e=BuiltinType::DOUBLE;}
- | UNSIGNED {$$ = new FuncParam(); $$->type_e=BuiltinType::INT;}
- | BOOL     {$$ = new FuncParam(); $$->type_e=BuiltinType::BOOL;}
+ : VOID       {$$ = new FuncParam(); $$->type_e=BuiltinType::VOID;}
+ | WCHAR      {$$ = new FuncParam(); $$->type_e=BuiltinType::WCHAR;}
+ | BOOL       {$$ = new FuncParam(); $$->type_e=BuiltinType::BOOL;}
+ | CHAR       {$$ = new FuncParam(); $$->type_e=BuiltinType::CHAR;}
+ | SHORT      {$$ = new FuncParam(); $$->type_e=BuiltinType::SHORT;}
+ | INT        {$$ = new FuncParam(); $$->type_e=BuiltinType::INT;}
+ | LONG       {$$ = new FuncParam(); $$->type_e=BuiltinType::LONG;}
+ | LONGLONG   {$$ = new FuncParam(); $$->type_e=BuiltinType::LONGLONG;}
+ | INT128     {$$ = new FuncParam(); $$->type_e=BuiltinType::INT128;}
+ | FLOAT      {$$ = new FuncParam(); $$->type_e=BuiltinType::FLOAT;}
+ | DOUBLE     {$$ = new FuncParam(); $$->type_e=BuiltinType::DOUBLE;}
+ | CHAR32     {$$ = new FuncParam(); $$->type_e=BuiltinType::CHAR32;}
+ | CHAR16     {$$ = new FuncParam(); $$->type_e=BuiltinType::CHAR16;}
+ | AUTO       {$$ = new FuncParam(); $$->type_e=BuiltinType::AUTO;}
+ | NULLPTR    {$$ = new FuncParam(); $$->type_e=BuiltinType::NULLPTR;}
  ;
 
 %%
