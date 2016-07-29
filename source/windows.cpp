@@ -1,7 +1,7 @@
-#include <string>
+#include "FuncDecl.h"
+#include "MrMangler.h"
 
-std::string mangle_windows(std::string a)
+std::string mangle_windows(const FuncDecl *p)
 {
-    (void) a;
-    return "Hello windows";
+    return p->name;
 }
