@@ -14,40 +14,40 @@ std::string mangle_type(const BuiltinType t, const uint8_t mods) {
        return "b";
 
     if (BuiltinType::CHAR == t) {
-      if (FuncParam::UNSIGNED && mods)
+      if (FuncParam::UNSIGNED & mods)
         return "h";
-      else if(FuncParam::SIGNED && mods)
+      else if(FuncParam::SIGNED & mods)
         return "a";
       else
         return "c";
     }
 
     if (BuiltinType::SHORT == t){
-      if (FuncParam::UNSIGNED && mods)
+      if (FuncParam::UNSIGNED & mods)
         return "t";
       return "s";
     }
 
     if (BuiltinType::INT == t){
-      if (FuncParam::UNSIGNED && mods)
+      if (FuncParam::UNSIGNED & mods)
         return "j";
       return "i";
     }
 
     if (BuiltinType::LONG == t){
-      if (FuncParam::UNSIGNED && mods)
+      if (FuncParam::UNSIGNED & mods)
           return "m";
       return "l";
     }
 
     if (BuiltinType::LONGLONG == t){
-      if (FuncParam::UNSIGNED && mods)
+      if (FuncParam::UNSIGNED & mods)
           return "y";
       return "x";
     }
 
     if (BuiltinType::INT128 == t){
-      if (FuncParam::UNSIGNED && mods)
+      if (FuncParam::UNSIGNED & mods)
           return "o";
       return "n";
     }

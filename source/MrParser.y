@@ -34,6 +34,14 @@ FuncDecl *func_decl = nullptr;
 %type<param> type_builtin type_modifier type_qualifier type_specifier parameter_declaration
 
 %%
+
+/* don't throw an error when reading files with multiple
+   function signatures, but only return one */
+function_decls
+ : function_decl
+ | function_decls function_decl
+ ;
+
 function_decl
  : return_decl      {func_decl = $1;}
  | return_decl ';'  {func_decl = $1;}
