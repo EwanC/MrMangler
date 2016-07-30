@@ -1,0 +1,6 @@
+foo(char)
+foo(signed char)
+foo(unsigned char)
+foo(int)
+foo(unsigned int)
+foo(float)
