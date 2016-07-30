@@ -10,6 +10,7 @@ void printHelp()
   std::cout << "Usage: MrMangler [optional args] <input file>" <<std::endl;
   std::cout << std::endl;
 
+  std::cout << "Positional args:" << std::endl;
   std::cout << "<input file>       Input file to read from, otherwise "
                "use stdin." << std::endl;
   std::cout << std::endl;
