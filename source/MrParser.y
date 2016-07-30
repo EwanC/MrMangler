@@ -31,7 +31,7 @@ FuncDecl *func_decl = nullptr;
 
 %type<decl> parameter_list parameter_type_list typed_decl named_decl
 %type<decl> return_decl function_decl
-%type<param> type_specifier parameter_declaration
+%type<param> type_builtin type_modifier type_qualifier type_specifier parameter_declaration
 
 %%
 function_decl
@@ -73,6 +73,24 @@ parameter_declaration
  ;
 
 type_specifier
+ : type_qualifier {$$=$1;}
+ | type_modifier  {$$=$1;}
+ | type_builtin   {$$=$1;}
+ ;
+
+type_qualifier
+ : CONST type_builtin     {$$=$2; $$->quals=FuncParam::CONST;}
+ | VOLATILE type_builtin  {$$=$2; $$->quals=FuncParam::VOLATILE;}
+ ;
+
+type_modifier
+ : UNSIGNED type_builtin {$$=$2; $$->mods=FuncParam::UNSIGNED;}
+ | SIGNED type_builtin   {$$=$2; $$->mods=FuncParam::SIGNED;}
+ | '*' type_builtin      {$$=$2; $$->mods=FuncParam::PTR;}
+ | '&' type_builtin      {$$=$2; $$->mods=FuncParam::REFERENCE;}
+ ;
+
+type_builtin
  : VOID       {$$ = new FuncParam(); $$->type_e=BuiltinType::VOID;}
  | WCHAR      {$$ = new FuncParam(); $$->type_e=BuiltinType::WCHAR;}
  | BOOL       {$$ = new FuncParam(); $$->type_e=BuiltinType::BOOL;}
