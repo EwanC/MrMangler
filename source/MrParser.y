@@ -133,5 +133,6 @@ FuncDecl* ParseStdin(FILE* file) {
 }
 
 void yyerror(const char*s) {
-   printf("Parse error %s\n", s);
+   printf("Exiting, parse error '%s'\n", s);
+   exit(1);
 }
