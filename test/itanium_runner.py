@@ -3,6 +3,15 @@
 import argparse
 import subprocess
 
+def run_pipeline(expected):
+  ps = subprocess.Popen(['echo','-n', expected], stdout=subprocess.PIPE)
+  ps2 = subprocess.Popen('../build/MrMangler', stdin=ps.stdout, stdout=subprocess.PIPE)
+  ps.stdout.close()
+  ps3 = subprocess.Popen(('c++filt'), stdin=ps2.stdout, stdout=subprocess.PIPE)
+  ps2.stdout.close()
+  output = ps3.communicate()[0].rstrip('\n')
+  return output
+
 def main():
   parser = argparse.ArgumentParser(description=
                                    'Test runner for MrMangler using Linux c++filt to verify manglings.')
@@ -10,15 +19,22 @@ def main():
   args = parser.parse_args()
 
   with open(args.filename) as f:
+    passes = []
+    fails = []
     for line in f:
       line = line.rstrip('\n')
-      ps = subprocess.Popen(('echo','-n', line), stdout=subprocess.PIPE)
-      ps2 = subprocess.Popen('../build/MrMangler', stdin=ps.stdout, stdout=subprocess.PIPE)
-      output = subprocess.check_output(('c++filt'), stdin=ps.stdout)
-      ps.wait()
-      ps2.wait()
-      output = output.rstrip('\n')
-      print(output, line)
+      result = run_pipeline(line)
+      if result != line:
+        fails.append((line,result))
+      else:
+        passes.append(line)
+
+    print("Test results:")
+    print("Total tests run: {0}".format((len(passes) + len(fails))))
+    print("Passes: {0}".format(len(passes)))
+    print("Fails: {0}".format(len(fails)))
+    for (expected, actual) in fails:
+        print('\tExpected "{0}", was "{1}"'.format(expected, actual))
 
 if __name__ == '__main__':
   main()

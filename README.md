@@ -24,6 +24,6 @@ $ echo "foo(signed char a, float b, ...)" | ./MrMangler"
 _Z3foofz
 ```
 
-#### TOOD
+#### TODO
 * [ ] Tests
 * [ ] Windows
