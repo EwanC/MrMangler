@@ -15,10 +15,10 @@ FuncDecl *func_decl = nullptr;
 
 %union {
   int ival;
-  float fval;
   char *sval;
   FuncDecl* decl;
   FuncParam* param;
+  BuiltinType builtin;
 }
 
 %token VOID WCHAR BOOL CHAR SHORT INT
@@ -31,7 +31,9 @@ FuncDecl *func_decl = nullptr;
 
 %type<decl> parameter_list parameter_type_list typed_decl named_decl
 %type<decl> return_decl function_decl
-%type<param> type_builtin type_modifier type_qualifier type_specifier parameter_declaration
+%type<param> type_specifier parameter_declaration
+%type<builtin> type_builtin
+%type<ival> type_modifier type_qualifier
 
 %%
 
@@ -81,39 +83,39 @@ parameter_declaration
  ;
 
 type_specifier
- : type_qualifier {$$=$1;}
- | type_modifier  {$$=$1;}
- | type_builtin   {$$=$1;}
+ : type_builtin                  {$$=new FuncParam(); $$->type_e = $1;}
+ | type_qualifier type_specifier {$$=$2; $$->quals= $$->quals | $1;}
+ | type_modifier  type_specifier {$$=$2; $$->mods= $$->mods | $1;}
  ;
 
 type_qualifier
- : CONST type_builtin     {$$=$2; $$->quals=FuncParam::CONST;}
- | VOLATILE type_builtin  {$$=$2; $$->quals=FuncParam::VOLATILE;}
+ : CONST    {$$=FuncParam::CONST;}
+ | VOLATILE {$$=FuncParam::VOLATILE;}
  ;
 
 type_modifier
- : UNSIGNED type_builtin {$$=$2; $$->mods=FuncParam::UNSIGNED;}
- | SIGNED type_builtin   {$$=$2; $$->mods=FuncParam::SIGNED;}
- | '*' type_builtin      {$$=$2; $$->mods=FuncParam::PTR;}
- | '&' type_builtin      {$$=$2; $$->mods=FuncParam::REFERENCE;}
+ : UNSIGNED {$$=FuncParam::UNSIGNED;}
+ | SIGNED   {$$=FuncParam::SIGNED;}
+ | '*'      {$$=FuncParam::PTR;}
+ | '&'      {$$=FuncParam::REFERENCE;}
  ;
 
 type_builtin
- : VOID       {$$ = new FuncParam(); $$->type_e=BuiltinType::VOID;}
- | WCHAR      {$$ = new FuncParam(); $$->type_e=BuiltinType::WCHAR;}
- | BOOL       {$$ = new FuncParam(); $$->type_e=BuiltinType::BOOL;}
- | CHAR       {$$ = new FuncParam(); $$->type_e=BuiltinType::CHAR;}
- | SHORT      {$$ = new FuncParam(); $$->type_e=BuiltinType::SHORT;}
- | INT        {$$ = new FuncParam(); $$->type_e=BuiltinType::INT;}
- | LONG       {$$ = new FuncParam(); $$->type_e=BuiltinType::LONG;}
- | LONGLONG   {$$ = new FuncParam(); $$->type_e=BuiltinType::LONGLONG;}
- | INT128     {$$ = new FuncParam(); $$->type_e=BuiltinType::INT128;}
- | FLOAT      {$$ = new FuncParam(); $$->type_e=BuiltinType::FLOAT;}
- | DOUBLE     {$$ = new FuncParam(); $$->type_e=BuiltinType::DOUBLE;}
- | CHAR32     {$$ = new FuncParam(); $$->type_e=BuiltinType::CHAR32;}
- | CHAR16     {$$ = new FuncParam(); $$->type_e=BuiltinType::CHAR16;}
- | AUTO       {$$ = new FuncParam(); $$->type_e=BuiltinType::AUTO;}
- | NULLPTR    {$$ = new FuncParam(); $$->type_e=BuiltinType::NULLPTR;}
+ : VOID       {$$=BuiltinType::VOID;}
+ | WCHAR      {$$=BuiltinType::WCHAR;}
+ | BOOL       {$$=BuiltinType::BOOL;}
+ | CHAR       {$$=BuiltinType::CHAR;}
+ | SHORT      {$$=BuiltinType::SHORT;}
+ | INT        {$$=BuiltinType::INT;}
+ | LONG       {$$=BuiltinType::LONG;}
+ | LONGLONG   {$$=BuiltinType::LONGLONG;}
+ | INT128     {$$=BuiltinType::INT128;}
+ | FLOAT      {$$=BuiltinType::FLOAT;}
+ | DOUBLE     {$$=BuiltinType::DOUBLE;}
+ | CHAR32     {$$=BuiltinType::CHAR32;}
+ | CHAR16     {$$=BuiltinType::CHAR16;}
+ | AUTO       {$$=BuiltinType::AUTO;}
+ | NULLPTR    {$$=BuiltinType::NULLPTR;}
  ;
 
 %%

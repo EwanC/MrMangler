@@ -6,6 +6,7 @@ if(BISON_FOUND)
         COMMAND ${BISON_EXECUTABLE}
                 --output=${BisonOutput}
                 --defines=MrParser.h
+                -g
                 ${CMAKE_CURRENT_SOURCE_DIR}/MrParser.y
         DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/MrParser.y
         COMMENT "Running Bison"
