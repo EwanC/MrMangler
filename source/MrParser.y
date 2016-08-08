@@ -31,9 +31,9 @@ FuncDecl *func_decl = nullptr;
 
 %type<decl> parameter_list parameter_type_list typed_decl named_decl
 %type<decl> return_decl function_decl
-%type<param> type_specifier parameter_declaration
+%type<param> type_specifier type_specifier_list parameter_declaration signed_builtin
 %type<builtin> type_builtin
-%type<ival> type_modifier type_qualifier
+%type<ival> type_qualifier abstract_declarator type_sign
 
 %%
 
@@ -83,21 +83,35 @@ parameter_declaration
  ;
 
 type_specifier
- : type_builtin                  {$$=new FuncParam(); $$->type_e = $1;}
- | type_qualifier type_specifier {$$=$2; $$->quals= $$->quals | $1;}
- | type_modifier  type_specifier {$$=$2; $$->mods= $$->mods | $1;}
+ : type_specifier_list {$$=$1;}
+ | type_specifier_list abstract_declarator {$$ = $1; $$->mods = $$->mods | $2;}
+ ;
+
+abstract_declarator
+ : '*'      {$$=FuncParam::PTR;}
+ | '&'      {$$=FuncParam::REFERENCE;}
+ ;
+
+type_specifier_list
+ : signed_builtin                     {$$=$1;}
+ | type_qualifier signed_builtin      {$$=$2; $$->quals= $$->quals | $1;}
+ | signed_builtin type_qualifier      {$$=$1; $$->quals= $$->quals | $2;}
+ ;
+
+signed_builtin
+ : type_builtin                       {$$=new FuncParam(); $$->type_e = $1;}
+ | type_sign type_builtin             {$$=new FuncParam(); $$->type_e = $2; $$->mods=$1;}
+ | type_builtin type_sign             {$$=new FuncParam(); $$->type_e = $1; $$->mods=$2;}
+ ;
+
+type_sign
+ : UNSIGNED {$$=FuncParam::UNSIGNED;}
+ | SIGNED   {$$=FuncParam::SIGNED;}
  ;
 
 type_qualifier
  : CONST    {$$=FuncParam::CONST;}
  | VOLATILE {$$=FuncParam::VOLATILE;}
- ;
-
-type_modifier
- : UNSIGNED {$$=FuncParam::UNSIGNED;}
- | SIGNED   {$$=FuncParam::SIGNED;}
- | '*'      {$$=FuncParam::PTR;}
- | '&'      {$$=FuncParam::REFERENCE;}
  ;
 
 type_builtin
