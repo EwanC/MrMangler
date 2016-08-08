@@ -5,7 +5,7 @@
 #include "FuncDecl.h"
 #include "MrMangler.h"
 
-std::string mangle_type(const BuiltinType t, const uint8_t mods) {
+static std::string mangle_type(const BuiltinType t, const uint8_t mods) {
 
     if (BuiltinType::VOID == t)
        return "v";
@@ -94,7 +94,7 @@ std::string mangle_type(const BuiltinType t, const uint8_t mods) {
     assert(false && "Unknown type");
 }
 
-std::string mangle_qualifier(const uint8_t qual_bitfield)
+static std::string mangle_qualifier(const uint8_t qual_bitfield)
 {
     std::string mangled;
     if (qual_bitfield & FuncParam::CONST)
@@ -105,7 +105,7 @@ std::string mangle_qualifier(const uint8_t qual_bitfield)
     return mangled;
 }
 
-std::string mangle_modifier(const uint8_t mod_bitfield)
+static std::string mangle_modifier(const uint8_t mod_bitfield)
 {
     std::string mangled;
     if (mod_bitfield & FuncParam::PTR)
@@ -118,7 +118,7 @@ std::string mangle_modifier(const uint8_t mod_bitfield)
     return mangled;
 }
 
-std::string mangle_param(const FuncParam *p) {
+static std::string mangle_param(const FuncParam *p) {
     std::string mangled = mangle_modifier(p->mods);
     mangled.append(mangle_qualifier(p->quals));
     mangled.append(mangle_type(p->type_e, p->mods));
