@@ -50,8 +50,8 @@ function_decl
  ;
 
 return_decl
- : type_specifier named_decl {$$ = $2;}
- | named_decl {$$ = $1;}
+ : type_specifier named_decl {$$ = $2; $$->return_val=$1;}
+ | named_decl {$$ = $1; $$->return_val= new FuncParam();}
  ;
 
 named_decl

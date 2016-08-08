@@ -31,8 +31,9 @@ time as the project becomes stable.
   * [ ] C++filt always puts const postfix
   * [ ] can't match variable name since it gets lost
 * [ ] Windows mangling
-  * [ ] Store func return value
+  * [X] Store func return value
   * [ ] Take calling convention as a command line option
+  * [ ] Find way to test
 * [ ] Build on host platforms other than linux
 
 ### Examples

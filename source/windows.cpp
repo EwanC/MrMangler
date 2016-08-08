@@ -9,8 +9,8 @@ static std::string mangle_type(const BuiltinType t, const uint8_t mods) {
     if (BuiltinType::VOID == t)
        return "X";
 
-  //  if (BuiltinType::BOOL == t)
-  //     return "b";
+    if (BuiltinType::BOOL == t)
+       return "_N";
 
     if (BuiltinType::CHAR == t) {
       if (FuncParam::UNSIGNED & mods)
@@ -96,10 +96,10 @@ static std::string mangle_type(const BuiltinType t, const uint8_t mods) {
 static std::string mangle_qualifier(const uint8_t qual_bitfield)
 {
     std::string mangled;
-    if (qual_bitfield & FuncParam::CONST)
-        mangled.push_back('K');
-    if (qual_bitfield & FuncParam::VOLATILE)
-        mangled.push_back('V');
+   // if (qual_bitfield & FuncParam::CONST)
+   //     mangled.push_back('K');
+   // if (qual_bitfield & FuncParam::VOLATILE)
+   //     mangled.push_back('V');
 
     return mangled;
 }
@@ -138,7 +138,8 @@ std::string mangle_windows(const FuncDecl *decl)
     // __stdcall -> "G"
     mangled << "A"; // Assume cdecl for now
 
-    // TODO return value
+    // scramble return value
+    mangled << mangle_param(decl->return_val);
 
     const std::vector<const FuncParam *> &params = decl->params;
     if (params.empty())
