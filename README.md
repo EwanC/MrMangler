@@ -29,7 +29,8 @@ time as the project becomes stable.
 * [ ] pointer to pointer param
 * [ ] Itanium Tests
   * [ ] C++filt always puts const postfix
-  * [ ] can't match variable name since it gets lost
+  * [X] can't match variable name since it gets lost
+  * [ ] PEP8 & tidy
 * [ ] Windows mangling
   * [X] Store func return value
   * [ ] Take calling convention as a command line option
