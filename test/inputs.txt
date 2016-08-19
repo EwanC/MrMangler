@@ -18,3 +18,30 @@ foo(const unsigned int *bas)
 foo(const unsigned int *const bas)
 foo(const unsigned int& bar)
 foo(const unsigned int &bas)
+static const int16_t  func_1(void)
+static int32_t  func_16(uint64_t  p_17)
+int32_t  func_21(uint8_t  p_22, int32_t * const  p_23, const int32_t * p_24, const int32_t * p_25, uint32_t  p_26)
+int32_t * func_27(int8_t  p_28, const uint64_t * p_29, uint16_t  p_30, int32_t * p_31)
+int64_t  func_41(int64_t  p_42, uint32_t  p_43, uint16_t  p_44, uint16_t  p_45, const uint16_t  p_46)
+static int32_t * func_49(int32_t * const  p_50)
+uint64_t * func_60(uint64_t * p_61, uint64_t * p_62)
+uint64_t  func_35(union U3  p_36);
+static int16_t  func_1(void);
+static union U1  func_11(int32_t * p_12);
+static const int32_t ** func_16(int32_t * const * p_17, uint8_t  p_18, uint64_t  p_19, uint32_t  p_20, int32_t * p_21);
+static int8_t  func_26(int32_t * p_27);
+static int16_t  func_38(union U1  p_39);
+static union U1  func_40(uint32_t  p_41, uint32_t  p_42, union U0  p_43, union U0  p_44);
+static union U1  func_49(int64_t  p_50, int32_t * p_51, int32_t  p_52, union U1  p_53);
+static uint8_t  func_64(int32_t ** p_65, const int32_t ** p_66, int32_t * p_67, int32_t * p_68, const uint32_t  p_69);
+static int32_t ** func_70(int64_t  p_71, int32_t ** p_72, uint8_t  p_73);
+static int32_t ** func_74(int32_t * p_75, const uint64_t  p_76, int32_t  p_77);
+static struct S0  func_10(uint32_t  p_11, const struct S0  p_12, uint64_t  p_13);
+static int32_t  func_16(uint32_t  p_17, uint16_t  p_18);
+static uint8_t  func_22(uint8_t  p_23, int64_t  p_24, uint16_t  p_25, int32_t  p_26, uint8_t  p_27);
+static int8_t  func_28(uint32_t  p_29, struct S0  p_30, uint64_t * p_31);
+static int64_t  func_36(uint64_t * const  p_37, uint32_t  p_38, uint8_t  p_39, const uint64_t * p_40, uint8_t  p_41);
+static uint32_t  func_42(const uint64_t * const  p_43);
+static uint64_t ** func_48(int32_t  p_49);
+static const uint64_t * func_53(uint32_t  p_54, struct S0  p_55, int32_t  p_56, uint64_t  p_57, uint64_t * p_58);
+static struct S0  func_60(const uint64_t ** const  p_61, uint64_t ** p_62);
