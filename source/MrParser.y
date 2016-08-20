@@ -26,8 +26,10 @@ FuncDecl *func_decl = nullptr;
 %token CHAR32 CHAR16 AUTO NULLPTR
 %token CONST VOLATILE
 %token UNSIGNED SIGNED
+%token STRUCT UNION
 %token<sval> STRING_LITERAL
 %token ELLIPSIS
+%token STATIC
 
 %type<decl> parameter_list parameter_type_list typed_decl named_decl
 %type<decl> return_decl function_decl
@@ -44,9 +46,13 @@ function_decls
  | function_decls function_decl
  ;
 
+/* Accept static even though functions with internal
+   linkage won't have symbols */
 function_decl
- : return_decl      {func_decl = $1;}
- | return_decl ';'  {func_decl = $1;}
+ : return_decl             {func_decl = $1;}
+ | return_decl ';'         {func_decl = $1;}
+ | STATIC return_decl ';'  {func_decl = $2;}
+ | STATIC return_decl      {func_decl = $2;}
  ;
 
 return_decl

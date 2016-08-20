@@ -10,10 +10,14 @@
 "wchar_t"   {return WCHAR;}
 "bool"      {return BOOL;}
 "char"      {return CHAR;}
+"int8_t"    {return CHAR;}
 "short"     {return SHORT;}
+"int16_t"   {return SHORT;}
 "int"       {return INT;}
+"int32_t"   {return INT;}
 "long long" {return LONGLONG;}
 "long"      {return LONG;}
+"int64_t"   {return LONG;}
 "int128"    {return INT128;}
 "float"     {return FLOAT;}
 "double"    {return DOUBLE;}
@@ -22,13 +26,17 @@
 "auto"      {return AUTO;}
 "nullptr_t" {return NULLPTR;}
 
-"const" {return CONST;}
+"const"    {return CONST;}
 "volatile" {return VOLATILE;}
 
 "unsigned" {return UNSIGNED;}
-"signed" {return SIGNED;}
+"signed"   {return SIGNED;}
 
-[a-zA-Z0-9]+ {yylval.sval = strdup(yytext); return STRING_LITERAL;}
+"struct" {return STRUCT;}
+"union"  {return UNION;}
+"static" {return STATIC;}
+
+[a-zA-Z0-9_]+ {yylval.sval = strdup(yytext); return STRING_LITERAL;}
 
 "..." {return ELLIPSIS;}
 "*" { return '*';}
