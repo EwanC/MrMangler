@@ -3,6 +3,7 @@
 
 #include <cstdio>
 #include <cstdint>
+#include <string>
 #include <vector>
 
 enum class BuiltinType {
@@ -27,7 +28,8 @@ enum class BuiltinType {
    CHAR32,
    CHAR16,
    AUTO,
-   NULLPTR
+   NULLPTR,
+   USER_DEF
 };
 
 struct FuncParam {
@@ -46,6 +48,7 @@ struct FuncParam {
 
   uint8_t quals;
   uint8_t mods;
+  std::string user_def_name;
   BuiltinType type_e;
 
   FuncParam(): quals(0), mods(0), type_e(BuiltinType::VOID)

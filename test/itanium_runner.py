@@ -118,10 +118,10 @@ def main():
             # if this matches the original mangling then our mangling was
             # correct.
             (rc, fallback) = run_mangler(demangled, args.binary)
-            if mangled != fallback or rc != 0:
-                fails.append((line, mangled))
-            else:
+            if mangled is fallback and rc is 0:
                 passes.append(line)
+            else:
+                fails.append((line, mangled))
 
         # Print test results
         print("Total tests run: {0}".format((len(passes) + len(fails))))

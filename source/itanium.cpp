@@ -5,7 +5,7 @@
 #include "FuncDecl.h"
 #include "MrMangler.h"
 
-static std::string mangle_type(const BuiltinType t, const uint8_t mods)
+static std::string mangle_type(const BuiltinType t, const uint8_t mods, const std::string& user_defn)
 {
   if (BuiltinType::VOID == t)
     return "v";
@@ -97,6 +97,9 @@ static std::string mangle_type(const BuiltinType t, const uint8_t mods)
   if (BuiltinType::NULLPTR == t)
     return "Dn";
 
+  if (BuiltinType::USER_DEF == t)
+    return std::to_string(user_defn.length()).append(user_defn);
+
   assert(false && "Unknown type");
 }
 
@@ -128,7 +131,7 @@ static std::string mangle_param(const FuncParam* p)
 {
   std::string mangled = mangle_modifier(p->mods);
   mangled.append(mangle_qualifier(p->quals));
-  mangled.append(mangle_type(p->type_e, p->mods));
+  mangled.append(mangle_type(p->type_e, p->mods, p->user_def_name));
   return mangled;
 }
 

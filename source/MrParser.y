@@ -26,7 +26,7 @@ FuncDecl *func_decl = nullptr;
 %token CHAR32 CHAR16 AUTO NULLPTR
 %token CONST VOLATILE
 %token UNSIGNED SIGNED
-%token STRUCT UNION
+%token STRUCT UNION ENUM
 %token<sval> STRING_LITERAL
 %token ELLIPSIS
 %token STATIC
@@ -36,6 +36,7 @@ FuncDecl *func_decl = nullptr;
 %type<param> type_specifier type_specifier_list parameter_declaration signed_builtin
 %type<builtin> type_builtin
 %type<ival> type_qualifier abstract_declarator type_sign
+%type<sval> user_def_type
 
 %%
 
@@ -94,8 +95,12 @@ type_specifier
  ;
 
 abstract_declarator
- : '*'      {$$=FuncParam::PTR;}
- | '&'      {$$=FuncParam::REFERENCE;}
+ : '*'                                    {$$=FuncParam::PTR;}
+ | '&'                                    {$$=FuncParam::REFERENCE;}
+ | abstract_declarator '*'                {$$=FuncParam::PTR;}
+ | abstract_declarator '&'                {$$=FuncParam::REFERENCE;}
+ | abstract_declarator type_qualifier '*' {$$=FuncParam::PTR;}
+ | abstract_declarator type_qualifier '&' {$$=FuncParam::REFERENCE;}
  ;
 
 type_specifier_list
@@ -108,6 +113,8 @@ signed_builtin
  : type_builtin                       {$$=new FuncParam(); $$->type_e = $1;}
  | type_sign type_builtin             {$$=new FuncParam(); $$->type_e = $2; $$->mods=$1;}
  | type_builtin type_sign             {$$=new FuncParam(); $$->type_e = $1; $$->mods=$2;}
+ | user_def_type                      {$$=new FuncParam(); $$->type_e = BuiltinType::USER_DEF;
+                                       $$->user_def_name=$1;}
  ;
 
 type_sign
@@ -118,6 +125,12 @@ type_sign
 type_qualifier
  : CONST    {$$=FuncParam::CONST;}
  | VOLATILE {$$=FuncParam::VOLATILE;}
+ ;
+
+user_def_type
+ : STRUCT STRING_LITERAL {$$=$2;}
+ | UNION STRING_LITERAL  {$$=$2;}
+ | ENUM STRING_LITERAL   {$$=$2;}
  ;
 
 type_builtin
