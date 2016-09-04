@@ -1,5 +1,6 @@
 %{
 #include <iostream>
+#include <typeinfo>
 #include "FuncDecl.h"
 #define YYDEBUG 0
 void yyerror(const char *s);
@@ -17,7 +18,9 @@ FuncDecl *func_decl = nullptr;
   int ival;
   char *sval;
   FuncDecl* decl;
-  FuncParam* param;
+  ASTNode* ast_node;
+  ASTUserType* ast_user;
+  ASTBuiltin* ast_builtin;
   BuiltinType builtin;
 }
 
@@ -33,10 +36,10 @@ FuncDecl *func_decl = nullptr;
 
 %type<decl> parameter_list parameter_type_list typed_decl named_decl
 %type<decl> return_decl function_decl
-%type<param> type_specifier type_specifier_list parameter_declaration signed_builtin
+%type<ast_node> parameter_declaration type_declaration
+%type<ival> type_qualifier type_sign abstract_declarator
 %type<builtin> type_builtin
-%type<ival> type_qualifier abstract_declarator type_sign
-%type<sval> user_def_type
+%type<ast_user> user_def_type
 
 %%
 
@@ -57,8 +60,8 @@ function_decl
  ;
 
 return_decl
- : type_specifier named_decl {$$ = $2; $$->return_val=$1;}
- | named_decl {$$ = $1; $$->return_val= new FuncParam();}
+ : type_declaration named_decl {$$ = $2; $$->return_val=$1;}
+ | named_decl {$$ = $1; $$->return_val= new ASTNode();}
  ;
 
 named_decl
@@ -72,7 +75,7 @@ typed_decl
 
 parameter_type_list
  : parameter_list ',' ELLIPSIS {$$ = $1;
-                                auto param = new FuncParam();
+                                auto param = new ASTBuiltin();
                                 param->type_e=BuiltinType::ELLIPSIS;
                                 $$->params.push_back(param);}
  | parameter_list {$$ = $1;}
@@ -85,52 +88,43 @@ parameter_list
  ;
 
 parameter_declaration
- : type_specifier  {$$ = $1;}
- | type_specifier STRING_LITERAL {$$ = $1;}
+ : type_declaration  {$$ = $1;}
+ | type_declaration STRING_LITERAL {$$ = $1;}
  ;
 
-type_specifier
- : type_specifier_list {$$=$1;}
- | type_specifier_list abstract_declarator {$$ = $1; $$->mods = $$->mods | $2;}
+type_declaration
+ : type_sign type_declaration {
+    if(typeid($2) == typeid(ASTBuiltin))
+    {
+      ASTBuiltin* b = static_cast<ASTBuiltin*>($2);
+      b->mods = b->mods | $1;
+    }
+ }
+ | abstract_declarator type_declaration {auto r = new ASTReference((ASTReference::Indirection)$1); r->pointee = $2; $$ = r;}
+ | type_qualifier type_declaration {$$=$2; $$->quals = $$->quals | $1;}
+ | type_builtin {auto b = new ASTBuiltin(); b->type_e = $1; $$=  b;}
+ | user_def_type {$$=$1;}
  ;
 
 abstract_declarator
- : '*'                                    {$$=FuncParam::PTR;}
- | '&'                                    {$$=FuncParam::REFERENCE;}
- | abstract_declarator '*'                {$$=FuncParam::PTR;}
- | abstract_declarator '&'                {$$=FuncParam::REFERENCE;}
- | abstract_declarator type_qualifier '*' {$$=FuncParam::PTR;}
- | abstract_declarator type_qualifier '&' {$$=FuncParam::REFERENCE;}
- ;
-
-type_specifier_list
- : signed_builtin                     {$$=$1;}
- | type_qualifier signed_builtin      {$$=$2; $$->quals= $$->quals | $1;}
- | signed_builtin type_qualifier      {$$=$1; $$->quals= $$->quals | $2;}
- ;
-
-signed_builtin
- : type_builtin                       {$$=new FuncParam(); $$->type_e = $1;}
- | type_sign type_builtin             {$$=new FuncParam(); $$->type_e = $2; $$->mods=$1;}
- | type_builtin type_sign             {$$=new FuncParam(); $$->type_e = $1; $$->mods=$2;}
- | user_def_type                      {$$=new FuncParam(); $$->type_e = BuiltinType::USER_DEF;
-                                       $$->user_def_name=$1;}
+ : '*'                                    {$$=ASTReference::PTR;}
+ | '&'                                    {$$=ASTReference::REF;}
  ;
 
 type_sign
- : UNSIGNED {$$=FuncParam::UNSIGNED;}
- | SIGNED   {$$=FuncParam::SIGNED;}
+ : UNSIGNED {$$=ASTBuiltin::UNSIGNED;}
+ | SIGNED   {$$=ASTBuiltin::SIGNED;}
  ;
 
 type_qualifier
- : CONST    {$$=FuncParam::CONST;}
- | VOLATILE {$$=FuncParam::VOLATILE;}
+ : CONST    {$$=ASTNode::CONST;}
+ | VOLATILE {$$=ASTNode::VOLATILE;}
  ;
 
 user_def_type
- : STRUCT STRING_LITERAL {$$=$2;}
- | UNION STRING_LITERAL  {$$=$2;}
- | ENUM STRING_LITERAL   {$$=$2;}
+ : STRUCT STRING_LITERAL {$$=new ASTUserType($2);}
+ | UNION STRING_LITERAL  {$$=new ASTUserType($2);}
+ | ENUM STRING_LITERAL   {$$=new ASTUserType($2);}
  ;
 
 type_builtin

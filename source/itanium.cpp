@@ -1,11 +1,12 @@
 #include <cassert>
 #include <cstring>
 #include <sstream>
+#include <typeinfo>
 
 #include "FuncDecl.h"
 #include "MrMangler.h"
 
-static std::string mangle_type(const BuiltinType t, const uint8_t mods, const std::string& user_defn)
+static std::string mangle_type(const BuiltinType t, const uint8_t mods)
 {
   if (BuiltinType::VOID == t)
     return "v";
@@ -15,9 +16,9 @@ static std::string mangle_type(const BuiltinType t, const uint8_t mods, const st
 
   if (BuiltinType::CHAR == t)
   {
-    if (FuncParam::UNSIGNED & mods)
+    if (ASTBuiltin::UNSIGNED & mods)
       return "h";
-    else if (FuncParam::SIGNED & mods)
+    else if (ASTBuiltin::SIGNED & mods)
       return "a";
     else
       return "c";
@@ -25,35 +26,35 @@ static std::string mangle_type(const BuiltinType t, const uint8_t mods, const st
 
   if (BuiltinType::SHORT == t)
   {
-    if (FuncParam::UNSIGNED & mods)
+    if (ASTBuiltin::UNSIGNED & mods)
       return "t";
     return "s";
   }
 
   if (BuiltinType::INT == t)
   {
-    if (FuncParam::UNSIGNED & mods)
+    if (ASTBuiltin::UNSIGNED & mods)
       return "j";
     return "i";
   }
 
   if (BuiltinType::LONG == t)
   {
-    if (FuncParam::UNSIGNED & mods)
+    if (ASTBuiltin::UNSIGNED & mods)
       return "m";
     return "l";
   }
 
   if (BuiltinType::LONGLONG == t)
   {
-    if (FuncParam::UNSIGNED & mods)
+    if (ASTBuiltin::UNSIGNED & mods)
       return "y";
     return "x";
   }
 
   if (BuiltinType::INT128 == t)
   {
-    if (FuncParam::UNSIGNED & mods)
+    if (ASTBuiltin::UNSIGNED & mods)
       return "o";
     return "n";
   }
@@ -97,18 +98,15 @@ static std::string mangle_type(const BuiltinType t, const uint8_t mods, const st
   if (BuiltinType::NULLPTR == t)
     return "Dn";
 
-  if (BuiltinType::USER_DEF == t)
-    return std::to_string(user_defn.length()).append(user_defn);
-
   assert(false && "Unknown type");
 }
 
 static std::string mangle_qualifier(const uint8_t qual_bitfield)
 {
   std::string mangled;
-  if (qual_bitfield & FuncParam::CONST)
+  if (qual_bitfield & ASTNode::CONST)
     mangled.push_back('K');
-  if (qual_bitfield & FuncParam::VOLATILE)
+  if (qual_bitfield & ASTNode::VOLATILE)
     mangled.push_back('V');
 
   return mangled;
@@ -117,21 +115,31 @@ static std::string mangle_qualifier(const uint8_t qual_bitfield)
 static std::string mangle_modifier(const uint8_t mod_bitfield)
 {
   std::string mangled;
-  if (mod_bitfield & FuncParam::PTR)
+  if (mod_bitfield & ASTReference::PTR)
     mangled.push_back('P');
-  if (mod_bitfield & FuncParam::REFERENCE)
+  if (mod_bitfield & ASTReference::REF)
     mangled.push_back('R');
-  if (mod_bitfield & FuncParam::RVALREF)
+  if (mod_bitfield & ASTReference::RVALREF)
     mangled.push_back('O');
 
   return mangled;
 }
 
-static std::string mangle_param(const FuncParam* p)
+static std::string mangle_param(const ASTNode* p)
 {
-  std::string mangled = mangle_modifier(p->mods);
-  mangled.append(mangle_qualifier(p->quals));
-  mangled.append(mangle_type(p->type_e, p->mods, p->user_def_name));
+  std::string mangled = mangle_qualifier(p->quals);
+  if (typeid(p) == typeid(ASTBuiltin))
+  {
+   const ASTBuiltin *b = static_cast<const ASTBuiltin*>(p);
+   mangled.append(mangle_modifier(b->mods));
+   mangled.append(mangle_type(b->type_e, b->mods));
+  }
+  else if (typeid(p) == typeid(ASTUserType))
+  {
+   const ASTUserType *u = static_cast<const ASTUserType*>(p);
+   const std::string& name = u->name;
+   mangled.append(std::to_string(name.length()).append(name));
+  }
   return mangled;
 }
 
@@ -140,7 +148,7 @@ std::string mangle_itanium(const FuncDecl* decl)
   std::ostringstream mangled;
   mangled << "_Z" << strlen(decl->name) << decl->name;
 
-  const std::vector<const FuncParam*>& params = decl->params;
+  const std::vector<const ASTNode*>& params = decl->params;
   if (params.empty())
   {
     mangled << "v";

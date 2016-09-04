@@ -28,38 +28,58 @@ enum class BuiltinType {
    CHAR32,
    CHAR16,
    AUTO,
-   NULLPTR,
-   USER_DEF
+   NULLPTR
 };
 
-struct FuncParam {
-  enum Qualifiers {
+struct ASTNode{
+ enum Qualifiers {
     CONST = 0x1 << 0,
     VOLATILE = 0x1 << 1,
   };
 
+  uint8_t quals;
+  ASTNode(): quals(0)
+  {}
+};
+
+struct ASTReference : ASTNode
+{
+  enum Indirection {PTR, REF, RVALREF};
+  ASTNode* pointee; // TODO smert pointer
+  const Indirection ref_type;
+
+  ASTReference(Indirection t_) : pointee(nullptr), ref_type(t_)
+  {}
+
+};
+
+struct ASTUserType : ASTNode
+{
+  const std::string name;
+  ASTUserType(const char* name_) : name(name_)
+  {}
+};
+
+
+struct ASTBuiltin : ASTNode {
+ 
   enum Modifiers {
-    PTR = 0x1 << 0,
     UNSIGNED = 0x1 << 1,
     SIGNED = 0x1 << 2,
-    REFERENCE = 0x1 << 3,
-    RVALREF = 0x1 << 4,
   };
 
-  uint8_t quals;
   uint8_t mods;
-  std::string user_def_name;
   BuiltinType type_e;
 
-  FuncParam(): quals(0), mods(0), type_e(BuiltinType::VOID)
+  ASTBuiltin(): mods(0), type_e(BuiltinType::VOID)
   {}
 
 };
 
 struct FuncDecl{
     const char* name;
-    std::vector<const FuncParam *> params;
-    const FuncParam* return_val;
+    std::vector<const ASTNode *> params;
+    const ASTNode* return_val;
 };
 
 FuncDecl* ParseStdin(FILE* f);
