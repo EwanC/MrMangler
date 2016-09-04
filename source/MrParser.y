@@ -61,7 +61,7 @@ function_decl
 
 return_decl
  : type_declaration named_decl {$$ = $2; $$->return_val=$1;}
- | named_decl {$$ = $1; $$->return_val= new ASTNode();}
+ | named_decl {$$ = $1; $$->return_val= new ASTBuiltin();}
  ;
 
 named_decl
@@ -94,11 +94,12 @@ parameter_declaration
 
 type_declaration
  : type_sign type_declaration {
-    if(typeid($2) == typeid(ASTBuiltin))
+    if(typeid(*$2) == typeid(ASTBuiltin))
     {
       ASTBuiltin* b = static_cast<ASTBuiltin*>($2);
       b->mods = b->mods | $1;
     }
+    $$ = $2;
  }
  | abstract_declarator type_declaration {auto r = new ASTReference((ASTReference::Indirection)$1); r->pointee = $2; $$ = r;}
  | type_qualifier type_declaration {$$=$2; $$->quals = $$->quals | $1;}
@@ -107,8 +108,8 @@ type_declaration
  ;
 
 abstract_declarator
- : '*'                                    {$$=ASTReference::PTR;}
- | '&'                                    {$$=ASTReference::REF;}
+ : '*' {$$=ASTReference::PTR;}
+ | '&' {$$=ASTReference::REF;}
  ;
 
 type_sign

@@ -40,16 +40,23 @@ struct ASTNode{
   uint8_t quals;
   ASTNode(): quals(0)
   {}
+
+  virtual uint8_t getID() = 0;
 };
 
 struct ASTReference : ASTNode
 {
-  enum Indirection {PTR, REF, RVALREF};
+  enum Indirection {PTR = 0x0, REF=0x1, RVALREF=0x2};
   ASTNode* pointee; // TODO smert pointer
   const Indirection ref_type;
 
   ASTReference(Indirection t_) : pointee(nullptr), ref_type(t_)
   {}
+
+  virtual uint8_t getID() override
+  {
+    return 1;
+  }
 
 };
 
@@ -58,6 +65,11 @@ struct ASTUserType : ASTNode
   const std::string name;
   ASTUserType(const char* name_) : name(name_)
   {}
+
+  virtual uint8_t getID() override
+  {
+    return 2;
+  }
 };
 
 
@@ -73,7 +85,10 @@ struct ASTBuiltin : ASTNode {
 
   ASTBuiltin(): mods(0), type_e(BuiltinType::VOID)
   {}
-
+  virtual uint8_t getID() override
+  {
+    return 3;
+  }
 };
 
 struct FuncDecl{
