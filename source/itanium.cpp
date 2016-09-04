@@ -117,26 +117,26 @@ static std::string mangle_param(const ASTNode* p)
   std::string mangled = mangle_qualifier(p->quals);
   if (typeid(*p) == typeid(ASTBuiltin))
   {
-   const ASTBuiltin *b = static_cast<const ASTBuiltin*>(p);
-   mangled.append(mangle_type(b->type_e, b->mods));
+    const ASTBuiltin* b = static_cast<const ASTBuiltin*>(p);
+    mangled.append(mangle_type(b->type_e, b->mods));
   }
   else if (typeid(*p) == typeid(ASTUserType))
   {
-   const ASTUserType *u = static_cast<const ASTUserType*>(p);
-   const std::string& name = u->name;
-   mangled.append(std::to_string(name.length()).append(name));
+    const ASTUserType* u = static_cast<const ASTUserType*>(p);
+    const std::string& name = u->name;
+    mangled.append(std::to_string(name.length()).append(name));
   }
   else if (typeid(*p) == typeid(ASTReference))
   {
-   const ASTReference *r = static_cast<const ASTReference*>(p);
-   if (r->ref_type == ASTReference::PTR)
-       mangled.push_back('P');
-   else if (r->ref_type == ASTReference::REF)
-       mangled.push_back('R');
-   else if (r->ref_type == ASTReference::RVALREF)
-       mangled.push_back('O');
-   if (r->pointee)
-       mangled.append(mangle_param(r->pointee)); //recursive call
+    const ASTReference* r = static_cast<const ASTReference*>(p);
+    if (r->ref_type == ASTReference::PTR)
+      mangled.push_back('P');
+    else if (r->ref_type == ASTReference::REF)
+      mangled.push_back('R');
+    else if (r->ref_type == ASTReference::RVALREF)
+      mangled.push_back('O');
+    if (r->pointee)
+      mangled.append(mangle_param(r->pointee)); // recursive call
   }
   return mangled;
 }
