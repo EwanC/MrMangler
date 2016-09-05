@@ -1,5 +1,6 @@
 #include <cassert>
 #include <sstream>
+#include <typeinfo>
 
 #include "FuncDecl.h"
 #include "MrMangler.h"
@@ -108,26 +109,31 @@ static std::string mangle_qualifier(const uint8_t qual_bitfield)
   return mangled;
 }
 
-static std::string mangle_modifier(const uint8_t mod_bitfield)
-{
-  std::string mangled;
-  if (mod_bitfield & ASTReference::PTR)
-    mangled.push_back('P');
-  // if (mod_bitfield & FuncParam::REFERENCE)
-  //     mangled.push_back('R');
-  // if (mod_bitfield & FuncParam::RVALREF)
-  //     mangled.push_back('O');
-
-  return mangled;
-}
-
 static std::string mangle_param(const ASTNode* p)
 {
-  // std::string mangled = mangle_modifier(p->mods);
-  // mangled.append(mangle_qualifier(p->quals));
-  // mangled.append(mangle_type(p->type_e, p->mods));
-  // return mangled;
-  return "bad";
+  std::string mangled = mangle_qualifier(p->quals);
+  if (typeid(*p) == typeid(ASTBuiltin))
+  {
+    const ASTBuiltin* b = static_cast<const ASTBuiltin*>(p);
+    mangled.append(mangle_type(b->type_e, b->mods));
+  }
+  else if (typeid(*p) == typeid(ASTUserType))
+  {
+    const ASTUserType* u = static_cast<const ASTUserType*>(p);
+    const std::string& name = u->name;
+    mangled.append(std::to_string(name.length()).append(name));
+  }
+  else if (typeid(*p) == typeid(ASTReference))
+  {
+    const ASTReference* r = static_cast<const ASTReference*>(p);
+    if (r->ref_type == ASTReference::PTR)
+      mangled.push_back('P');
+
+    if (r->pointee)
+      mangled.append(mangle_param(r->pointee)); // recursive call
+  }
+  return mangled;
+
 }
 
 std::string mangle_windows(const FuncDecl* decl)
