@@ -36,10 +36,11 @@ FuncDecl *func_decl = nullptr;
 
 %type<decl> parameter_list parameter_type_list typed_decl named_decl
 %type<decl> return_decl function_decl
-%type<ast_node> parameter_declaration type_declaration
-%type<ival> type_qualifier type_sign abstract_declarator
+%type<ast_node> parameter_declaration type_declaration signed_builtin abstract_declarator
+%type<ast_node> qualified_user_t  qualified_abstract_decl  qualified_builtin
+%type<ival> type_qualifier type_sign
 %type<builtin> type_builtin
-%type<ast_user> user_def_type
+%type<sval> user_def_type
 
 %%
 
@@ -93,23 +94,32 @@ parameter_declaration
  ;
 
 type_declaration
- : type_sign type_declaration {
-    if(typeid(*$2) == typeid(ASTBuiltin))
-    {
-      ASTBuiltin* b = static_cast<ASTBuiltin*>($2);
-      b->mods = b->mods | $1;
-    }
-    $$ = $2;
- }
- | abstract_declarator type_declaration {auto r = new ASTReference((ASTReference::Indirection)$1); r->pointee = $2; $$ = r;}
- | type_qualifier type_declaration {$$=$2; $$->quals = $$->quals | $1;}
- | type_builtin {auto b = new ASTBuiltin(); b->type_e = $1; $$=  b;}
- | user_def_type {$$=$1;}
+ : qualified_user_t  {$$=$1;}
+ | qualified_builtin {$$=$1;}
+ | type_declaration qualified_abstract_decl {auto r = static_cast<ASTReference*>($2); r->pointee = $1; $$ = r;}
  ;
 
+qualified_abstract_decl
+ : abstract_declarator type_qualifier {$$=$1; $$->quals = $$->quals | $2;}
+ | abstract_declarator                {$$=$1;}
+
 abstract_declarator
- : '*' {$$=ASTReference::PTR;}
- | '&' {$$=ASTReference::REF;}
+ : '*' {$$=new ASTReference(ASTReference::PTR);}
+ | '&' {$$=new ASTReference(ASTReference::REF);}
+ | '*' abstract_declarator  {auto r = new ASTReference(ASTReference::PTR);r->pointee = $2; $$ = r;}
+ | '&' abstract_declarator  {auto r = new ASTReference(ASTReference::REF);r->pointee = $2; $$ = r;}
+ ;
+
+qualified_builtin
+ : type_qualifier signed_builtin  {$$=$2; $$->quals = $$->quals | $1;}
+ | signed_builtin type_qualifier  {$$=$1; $$->quals = $$->quals | $2;}
+ | signed_builtin                 {$$ = $1;}
+ ;
+
+signed_builtin
+ : type_sign type_builtin  {auto b = new ASTBuiltin(); b->type_e = $2; b->mods = b->mods | $1; $$ = b;}
+ | type_builtin type_sign  {auto b = new ASTBuiltin(); b->type_e = $1; b->mods = b->mods | $2; $$ = b;}
+ | type_builtin            {auto b = new ASTBuiltin(); b->type_e = $1; $$ = b;}
  ;
 
 type_sign
@@ -117,15 +127,21 @@ type_sign
  | SIGNED   {$$=ASTBuiltin::SIGNED;}
  ;
 
-type_qualifier
- : CONST    {$$=ASTNode::CONST;}
- | VOLATILE {$$=ASTNode::VOLATILE;}
+qualified_user_t
+ : type_qualifier user_def_type  {$$ = new ASTUserType($2); $$->quals = $$->quals | $1;}
+ | user_def_type type_qualifier  {$$ = new ASTUserType($1); $$->quals = $$->quals | $2;}
+ | user_def_type                 {$$ = new ASTUserType($1);}
  ;
 
 user_def_type
- : STRUCT STRING_LITERAL {$$=new ASTUserType($2);}
- | UNION STRING_LITERAL  {$$=new ASTUserType($2);}
- | ENUM STRING_LITERAL   {$$=new ASTUserType($2);}
+ : STRUCT STRING_LITERAL {$$=$2;}
+ | UNION STRING_LITERAL  {$$=$2;}
+ | ENUM STRING_LITERAL   {$$=$2;}
+ ;
+
+type_qualifier
+ : CONST    {$$=ASTNode::CONST;}
+ | VOLATILE {$$=ASTNode::VOLATILE;}
  ;
 
 type_builtin
