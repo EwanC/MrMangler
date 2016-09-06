@@ -96,8 +96,21 @@ parameter_declaration
 type_declaration
  : qualified_user_t  {$$=$1;}
  | qualified_builtin {$$=$1;}
- | qualified_user_t qualified_abstract_decl {auto r = static_cast<ASTReference*>($2); r->pointee = $1; $$ = r;}
- | qualified_builtin qualified_abstract_decl {auto r = static_cast<ASTReference*>($2); r->pointee = $1; $$ = r;}
+ | qualified_user_t qualified_abstract_decl {
+                                               auto r = static_cast<ASTReference*>($2);
+                                               while (r->pointee)
+                                                 r = static_cast<ASTReference*>(r->pointee);
+                                               r->pointee = $1;
+                                               $$ = $2;
+                                             }
+
+ | qualified_builtin qualified_abstract_decl {
+                                               auto r = static_cast<ASTReference*>($2);
+                                               while (r->pointee)
+                                                 r = static_cast<ASTReference*>(r->pointee);
+                                               r->pointee = $1;
+                                               $$ = $2;
+                                             }
  ;
 
 qualified_abstract_decl
