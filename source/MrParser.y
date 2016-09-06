@@ -96,18 +96,20 @@ parameter_declaration
 type_declaration
  : qualified_user_t  {$$=$1;}
  | qualified_builtin {$$=$1;}
- | type_declaration qualified_abstract_decl {auto r = static_cast<ASTReference*>($2); r->pointee = $1; $$ = r;}
+ | qualified_user_t qualified_abstract_decl {auto r = static_cast<ASTReference*>($2); r->pointee = $1; $$ = r;}
+ | qualified_builtin qualified_abstract_decl {auto r = static_cast<ASTReference*>($2); r->pointee = $1; $$ = r;}
  ;
 
 qualified_abstract_decl
  : abstract_declarator type_qualifier {$$=$1; $$->quals = $$->quals | $2;}
  | abstract_declarator                {$$=$1;}
+ ;
 
 abstract_declarator
  : '*' {$$=new ASTReference(ASTReference::PTR);}
  | '&' {$$=new ASTReference(ASTReference::REF);}
- | '*' abstract_declarator  {auto r = new ASTReference(ASTReference::PTR);r->pointee = $2; $$ = r;}
- | '&' abstract_declarator  {auto r = new ASTReference(ASTReference::REF);r->pointee = $2; $$ = r;}
+ | qualified_abstract_decl '*' {auto r = new ASTReference(ASTReference::PTR);r->pointee = $1; $$ = r;}
+ | qualified_abstract_decl '&' {auto r = new ASTReference(ASTReference::REF);r->pointee = $1; $$ = r;}
  ;
 
 qualified_builtin
