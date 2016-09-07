@@ -118,7 +118,7 @@ def main():
             # if this matches the original mangling then our mangling was
             # correct.
             (rc, fallback) = run_mangler(demangled, args.binary)
-            if mangled is fallback and rc is 0:
+            if (mangled == fallback) and (rc == 0):
                 passes.append(line)
             else:
                 fails.append((line, mangled))
