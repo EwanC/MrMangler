@@ -25,6 +25,7 @@ FuncDecl *func_decl = nullptr;
 }
 
 %token VOID WCHAR BOOL CHAR SHORT INT
+%token UCHAR USHORT UINT ULONG
 %token LONG LONGLONG INT128 FLOAT DOUBLE
 %token CHAR32 CHAR16 AUTO NULLPTR
 %token CONST VOLATILE
@@ -152,6 +153,7 @@ user_def_type
  : STRUCT STRING_LITERAL {$$=$2;}
  | UNION STRING_LITERAL  {$$=$2;}
  | ENUM STRING_LITERAL   {$$=$2;}
+ | STRING_LITERAL        {$$=$1;}
  ;
 
 type_qualifier
@@ -164,9 +166,13 @@ type_builtin
  | WCHAR      {$$=BuiltinType::WCHAR;}
  | BOOL       {$$=BuiltinType::BOOL;}
  | CHAR       {$$=BuiltinType::CHAR;}
+ | UCHAR      {$$=BuiltinType::UCHAR;}
  | SHORT      {$$=BuiltinType::SHORT;}
+ | USHORT     {$$=BuiltinType::USHORT;}
  | INT        {$$=BuiltinType::INT;}
+ | UINT       {$$=BuiltinType::UINT;}
  | LONG       {$$=BuiltinType::LONG;}
+ | ULONG      {$$=BuiltinType::ULONG;}
  | LONGLONG   {$$=BuiltinType::LONGLONG;}
  | INT128     {$$=BuiltinType::INT128;}
  | FLOAT      {$$=BuiltinType::FLOAT;}

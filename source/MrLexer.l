@@ -11,13 +11,17 @@
 "bool"      {return BOOL;}
 "char"      {return CHAR;}
 "int8_t"    {return CHAR;}
+"uint8_t"   {return UCHAR;}
 "short"     {return SHORT;}
 "int16_t"   {return SHORT;}
+"uint16_t"  {return USHORT;}
 "int"       {return INT;}
 "int32_t"   {return INT;}
+"uint32_t"  {return UINT;}
 "long long" {return LONGLONG;}
 "long"      {return LONG;}
 "int64_t"   {return LONG;}
+"uint64_t"  {return ULONG;}
 "int128"    {return INT128;}
 "float"     {return FLOAT;}
 "double"    {return DOUBLE;}

@@ -26,7 +26,7 @@ Currently builtin types are only supported until such a
 time as the project becomes stable.
 
 #### TODO
-* [ ] pointer to pointer param
+* [X] pointer to pointer param
 * [X] Itanium Tests
 * [ ] Windows mangling
   * [X] Store func return value

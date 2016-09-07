@@ -24,12 +24,18 @@ static std::string mangle_type(const BuiltinType t, const uint8_t mods)
       return "c";
   }
 
+  if (BuiltinType::UCHAR == t)
+    return "h";
+
   if (BuiltinType::SHORT == t)
   {
     if (ASTBuiltin::UNSIGNED & mods)
       return "t";
     return "s";
   }
+
+  if (BuiltinType::USHORT == t)
+    return "t";
 
   if (BuiltinType::INT == t)
   {
@@ -38,12 +44,18 @@ static std::string mangle_type(const BuiltinType t, const uint8_t mods)
     return "i";
   }
 
+  if (BuiltinType::UINT == t)
+    return "j";
+
   if (BuiltinType::LONG == t)
   {
     if (ASTBuiltin::UNSIGNED & mods)
       return "m";
     return "l";
   }
+
+  if (BuiltinType::ULONG == t)
+    return "m";
 
   if (BuiltinType::LONGLONG == t)
   {
