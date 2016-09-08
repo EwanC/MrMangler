@@ -18,6 +18,9 @@ Aims to be cross platform to support itanium and windows
 mangling. As a result does the mangling itself rather than
 calling library function like `__cxa_demangle`.
 
+### Test status
+[![Build Status](https://travis-ci.org/EwanC/MrMangler.svg)](https://travis-ci.org/EwanC/MrMangler) Master
+
 ### Status
 The project is still in early stages on development, so
 is not expected to compile on platforms other than Linux.
@@ -46,6 +49,6 @@ _Z3barKPKj
 $ echo "super_duper_function(struct my_struct **)" | ./MrMangler
 _Z20super_duper_functionPP9my_struct
 
-echo "AliceBob(signed char& packet)" | ./MrMangler
+$ echo "AliceBob(signed char& packet)" | ./MrMangler
 _Z8AliceBobRa
 ```
