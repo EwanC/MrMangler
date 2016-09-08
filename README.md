@@ -22,11 +22,12 @@ calling library function like `__cxa_demangle`.
 The project is still in early stages on development, so
 is not expected to compile on platforms other than Linux.
 
-Currently builtin types are only supported until such a
-time as the project becomes stable.
+Right now C language mangling with some C++ features like
+references is the target. Then once that's stable move onto
+features such as namespaces and templates.
 
 #### TODO
-* [X] pointer to pointer param
+* [ ] Function pointers
 * [X] Itanium Tests
 * [ ] Windows mangling
   * [X] Store func return value
@@ -35,7 +36,16 @@ time as the project becomes stable.
 * [ ] Build on host platforms other than linux
 
 ### Examples
-```
+```bash
 $ echo "foo(signed char a, float b, ...)" | ./MrMangler
 _Z3fooafz
+
+$ echo "bar(const uint32_t *const)" | ./MrMangler
+_Z3barKPKj
+
+$ echo "super_duper_function(struct my_struct **)" | ./MrMangler
+_Z20super_duper_functionPP9my_struct
+
+echo "AliceBob(signed char& packet)" | ./MrMangler
+_Z8AliceBobRa
 ```

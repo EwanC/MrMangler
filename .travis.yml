@@ -1,0 +1,15 @@
+language: cpp
+
+compiler:
+    - clang
+
+install:
+    - sudo apt-get install flex bison cmake
+
+script:
+  - mkdir build
+  - cd build
+  - cmake ../
+  - make
+  - cd ../test
+  - python itanium_runner.py inputs.txt ../build/MrMangler
