@@ -45,12 +45,19 @@ struct ASTNode
   };
 
   uint8_t quals;
-  ASTNode() : quals(0)
+  ASTNode* pointee; // TODO make smart pointer
+  ASTNode() : quals(0), pointee(nullptr)
   {
   }
 
   virtual uint8_t getID() = 0;
+
+  virtual ASTNode* getPointee()
+  {
+    return pointee;
+  }
 };
+
 
 struct ASTReference : ASTNode
 {
@@ -60,10 +67,9 @@ struct ASTReference : ASTNode
     REF = 0x1,
     RVALREF = 0x2
   };
-  ASTNode* pointee; // TODO smert pointer
   const Indirection ref_type;
 
-  ASTReference(Indirection t_) : pointee(nullptr), ref_type(t_)
+  ASTReference(Indirection t_) : ref_type(t_)
   {
   }
 
@@ -104,6 +110,20 @@ struct ASTBuiltin : ASTNode
   virtual uint8_t getID() override
   {
     return 3;
+  }
+};
+
+struct ASTArray : ASTNode
+{
+  uint32_t size;
+
+  ASTArray(uint32_t size_) : size(size_)
+  {
+  }
+
+  virtual uint8_t getID() override
+  {
+    return 4;
   }
 };
 

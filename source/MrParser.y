@@ -1,6 +1,7 @@
 %{
 #include <iostream>
 #include <typeinfo>
+#include <string>
 #include "FuncDecl.h"
 #define YYDEBUG 0
 void yyerror(const char *s);
@@ -19,8 +20,6 @@ FuncDecl *func_decl = nullptr;
   char *sval;
   FuncDecl* decl;
   ASTNode* ast_node;
-  ASTUserType* ast_user;
-  ASTBuiltin* ast_builtin;
   BuiltinType builtin;
 }
 
@@ -31,13 +30,14 @@ FuncDecl *func_decl = nullptr;
 %token CONST VOLATILE
 %token UNSIGNED SIGNED
 %token STRUCT UNION ENUM
-%token<sval> STRING_LITERAL
+%token<sval> STRING_LITERAL NUM_LITERAL
 %token ELLIPSIS
 %token STATIC
 
 %type<decl> parameter_list parameter_type_list typed_decl named_decl
 %type<decl> return_decl function_decl
 %type<ast_node> parameter_declaration type_declaration signed_builtin abstract_declarator
+%type<ast_node> array_type sized_array_type
 %type<ast_node> qualified_user_t  qualified_abstract_decl  qualified_builtin
 %type<ival> type_qualifier type_sign
 %type<builtin> type_builtin
@@ -91,7 +91,41 @@ parameter_list
 
 parameter_declaration
  : type_declaration  {$$ = $1;}
+ | type_declaration array_type {
+                                 auto p = $2;
+                                 while(p->pointee)
+                                   p = p->pointee;
+                                 p->pointee = $1;
+                                 $$=$2;
+                               }
  | type_declaration STRING_LITERAL {$$ = $1;}
+ | type_declaration STRING_LITERAL array_type {
+                                                auto p = $3;
+                                                while(p->pointee)
+                                                  p = p->pointee;
+                                                p->pointee = $1;
+                                                $$ = $3;
+                                              }
+ ;
+
+array_type
+ : '[' ']' {$$ = new ASTReference(ASTReference::PTR);}
+ | '[' ']' sized_array_type {
+                               $$ = new ASTArray(0);
+                               auto a = static_cast<ASTArray*>($3);
+                               a->pointee = $$;
+                             }
+ |  sized_array_type {$$ = $1;}
+ ;
+
+sized_array_type
+ : '[' NUM_LITERAL ']' {auto size = std::stoul($2,nullptr); $$=new ASTArray(size);}
+ |  sized_array_type '[' NUM_LITERAL ']' {
+                                           auto size = std::stoul($3,nullptr);
+                                           auto a = new ASTArray(size);
+                                           a->pointee = $1;
+                                           $$ = a;
+                                         }
  ;
 
 type_declaration

@@ -40,6 +40,7 @@
 "union"  {return UNION;}
 "static" {return STATIC;}
 
+[0-9]+ {yylval.sval = strdup(yytext); return NUM_LITERAL;}
 [a-zA-Z0-9_]+ {yylval.sval = strdup(yytext); return STRING_LITERAL;}
 
 "..." {return ELLIPSIS;}

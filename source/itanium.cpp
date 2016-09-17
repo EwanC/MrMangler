@@ -150,6 +150,23 @@ static std::string mangle_param(const ASTNode* p)
     if (r->pointee)
       mangled.append(mangle_param(r->pointee)); // recursive call
   }
+  else if (typeid(*p) == typeid(ASTArray))
+  {
+    const ASTArray* r = static_cast<const ASTArray*>(p);
+    auto size = r->size;
+    if (0 == size) {
+      mangled.push_back('P');
+    }
+    else {
+      mangled.push_back('A');
+      mangled.append(std::to_string(size));
+      mangled.push_back('_');
+    }
+
+    if (r->pointee)
+      mangled.append(mangle_param(r->pointee)); // recursive call
+  }
+
   return mangled;
 }
 
