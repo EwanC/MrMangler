@@ -3,7 +3,7 @@
 
 #include <string>
 
-class FuncDecl;
+struct FuncDecl;
 
 typedef std::string (*mangle_fn)(const FuncDecl*);
 

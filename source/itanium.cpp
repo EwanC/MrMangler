@@ -111,6 +111,7 @@ static std::string mangle_type(const BuiltinType t, const uint8_t mods)
     return "Dn";
 
   assert(false && "Unknown type");
+  return "";
 }
 
 static std::string mangle_qualifier(const uint8_t qual_bitfield)
