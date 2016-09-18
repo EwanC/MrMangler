@@ -111,9 +111,9 @@ parameter_declaration
 array_type
  : '[' ']' {$$ = new ASTReference(ASTReference::PTR);}
  | '[' ']' sized_array_type {
-                               $$ = new ASTArray(0);
-                               auto a = static_cast<ASTArray*>($3);
-                               a->pointee = $$;
+                               auto a = new ASTArray(0);
+                               a->pointee = $3;
+                               $$ = a;
                              }
  |  sized_array_type {$$ = $1;}
  ;
@@ -123,8 +123,8 @@ sized_array_type
  |  sized_array_type '[' NUM_LITERAL ']' {
                                            auto size = std::stoul($3,nullptr);
                                            auto a = new ASTArray(size);
-                                           a->pointee = $1;
-                                           $$ = a;
+                                           $1->pointee = a;
+                                           $$ = $1;
                                          }
  ;
 
