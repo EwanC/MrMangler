@@ -35,7 +35,7 @@ features such as namespaces and templates.
 * [ ] Windows mangling
   * [X] Store func return value
   * [ ] Take calling convention as a command line option
-  * [ ] Find way to test
+  * [X] Find way to test
 * [ ] Build on host platforms other than linux
 
 ### Examples

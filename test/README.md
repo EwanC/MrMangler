@@ -5,3 +5,8 @@
   * Use csmith
 * [ ] gtest unit tests
 * [X] test against c++filt
+* [ ] Windows mangling tests
+  * [X] Find out how
+  * [ ] Clean up script
+  * [ ] Pass script
+  * [ ] Merge w/ itanium script
