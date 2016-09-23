@@ -57,7 +57,7 @@ def run_clang_cl(func_sig):
         tmp_obj = temp_fd.name[:-3] + "obj"  # output file
 
         return_code = subprocess.call(['clang-cl', '-o', tmp_obj,
-                                       '-c', temp_fd.name])
+                                       '-m32', '-c', temp_fd.name])
 
         # Scrape mangled symbol using nm
         child_nm = subprocess.Popen(
