@@ -46,6 +46,7 @@ def run_clang_cl(func_sig):
         # Generate stub function in file
         temp_fd.write(b"#include <stdint.h>\n")
         temp_fd.write(b"union U1 {int i; U1(int i_): i(i_){}};\n")
+        temp_fd.write(b"struct S0 {int i; S0(int i_): i(i_){}};\n")
         temp_fd.write(func_sig.rstrip(';').encode())
         if func_sig.startswith('void'):
             temp_fd.write(b"\n{\n\n}\n")
@@ -131,13 +132,13 @@ def main():
             # Mangle function decl with MrMangler
             (return_code, mr_mangled) = run_mangler(line, args.binary)
             if return_code != 0:
-                fails.append((line, mr_mangled))
+                fails.append((line, mr_mangled, ''))
                 continue
 
             # Mangle function decl with clang-cl
             (return_code, cl_mangled) = run_clang_cl(line)
             if return_code != 0:
-                fails.append((line, cl_mangled))
+                fails.append((line, mr_mangled, cl_mangled))
                 continue
 
             # Pass if manglings match
@@ -145,14 +146,15 @@ def main():
                 passes.append(line)
                 continue
             else:
-                fails.append((mr_mangled, cl_mangled))
+                fails.append((line, mr_mangled, cl_mangled))
 
         # Print test results
         print("Total tests run: {0}".format((len(passes) + len(fails))))
         print("Passes: {0}".format(len(passes)))
         print("Fails: {0}".format(len(fails)))
-        for (expected, actual) in fails:
-            print('\tExpected "{0}", was "{1}"'.format(expected, actual))
+        for (orig, expect, correct) in fails:
+            print('\t{0}: Expected "{1}", was "{2}"'.format(
+                orig, expect, correct))
 
 if __name__ == '__main__':
     main()
