@@ -39,6 +39,7 @@ FuncDecl *func_decl = nullptr;
 %type<ast_node> parameter_declaration type_declaration signed_builtin abstract_declarator
 %type<ast_node> array_type sized_array_type
 %type<ast_node> qualified_user_t  qualified_abstract_decl  qualified_builtin
+%type<ast_node> functor_decl functor_helper functor_params
 %type<ival> type_qualifier type_sign
 %type<builtin> type_builtin
 %type<sval> user_def_type
@@ -91,6 +92,7 @@ parameter_list
 
 parameter_declaration
  : type_declaration  {$$ = $1;}
+ | type_declaration functor_decl  {$$ = $2;}
  | type_declaration array_type {
                                  auto p = $2;
                                  while(p->pointee)
@@ -106,6 +108,21 @@ parameter_declaration
                                                 p->pointee = $1;
                                                 $$ = $3;
                                               }
+ ;
+
+functor_decl
+ : '(' functor_helper ')' '(' functor_params ')' {$$ = new ASTFunctor($2);}
+ ;
+
+functor_helper
+ : '*' {$$ = new ASTBuiltin();}
+ | '*' STRING_LITERAL {$$ = new ASTBuiltin();}
+ | '*' STRING_LITERAL array_type {$$ = new ASTBuiltin();}
+ ;
+
+functor_params
+ : type_declaration {$$ = new ASTBuiltin();}
+ | functor_params ',' type_declaration {$$ = new ASTBuiltin();}
  ;
 
 array_type

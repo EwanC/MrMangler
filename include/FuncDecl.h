@@ -127,6 +127,21 @@ struct ASTArray : ASTNode
   }
 };
 
+struct ASTFunctor: ASTNode
+{
+  std::vector<const ASTNode*> args;
+  const ASTNode* type; // TODO correct terminology
+
+  ASTFunctor(const ASTNode* t) : type(t)
+  {
+  }
+
+  virtual uint8_t getID() override
+  {
+    return 5;
+  }
+};
+
 struct FuncDecl
 {
   const char* name;
