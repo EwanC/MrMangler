@@ -39,7 +39,7 @@ FuncDecl *func_decl = nullptr;
 %type<ast_node> parameter_declaration type_declaration signed_builtin abstract_declarator
 %type<ast_node> array_type sized_array_type
 %type<ast_node> qualified_user_t  qualified_abstract_decl  qualified_builtin
-%type<ast_node> functor_decl functor_helper functor_params
+%type<ast_node> functor_decl functor_helper functor_params functor_ptr
 %type<ival> type_qualifier type_sign
 %type<builtin> type_builtin
 %type<sval> user_def_type
@@ -92,7 +92,7 @@ parameter_list
 
 parameter_declaration
  : type_declaration  {$$ = $1;}
- | type_declaration functor_decl  {$$ = $2;}
+ | type_declaration functor_decl  {$$ = $2; $$->pointee = $1;}
  | type_declaration array_type {
                                  auto p = $2;
                                  while(p->pointee)
@@ -111,18 +111,48 @@ parameter_declaration
  ;
 
 functor_decl
- : '(' functor_helper ')' '(' functor_params ')' {$$ = new ASTFunctor($2);}
+ : '(' functor_helper ')' '(' functor_params ')' {
+                                                   auto fctr = static_cast<ASTFunctor*>($5);
+                                                   fctr->type = $2;
+                                                   $$ = fctr;
+                                                 }
  ;
 
 functor_helper
- : '*' {$$ = new ASTBuiltin();}
- | '*' STRING_LITERAL {$$ = new ASTBuiltin();}
- | '*' STRING_LITERAL array_type {$$ = new ASTBuiltin();}
+ : functor_ptr {$$ = $1;}
+ | functor_ptr STRING_LITERAL {$$ = $1;}
+ | functor_ptr STRING_LITERAL array_type {
+                                           auto p = $3; // ASTReference
+                                           while(p->pointee)
+                                             p = p->pointee;
+                                           p->pointee = $1;
+                                           $$ = $3;
+                                         }
+ ;
+
+/* TODO merge this with qualified_abstracet_decl */
+functor_ptr
+ : '*' {$$ = new ASTReference(ASTReference::PTR);}
+ | type_qualifier '*'{$$ = new ASTReference(ASTReference::PTR); $$->quals = $$->quals | $1;}
+ | functor_ptr '*' {auto r = new ASTReference(ASTReference::PTR);r->pointee = $1; $$ = r;}
+ | functor_ptr type_qualifier '*' {
+                                    auto r = new ASTReference(ASTReference::PTR);
+                                    r->quals = r->quals | $2;
+                                    r->pointee = $1; $$ = r;
+                                  }
  ;
 
 functor_params
- : type_declaration {$$ = new ASTBuiltin();}
- | functor_params ',' type_declaration {$$ = new ASTBuiltin();}
+ : type_declaration {
+                      auto fctr = new ASTFunctor();
+                      fctr->args.push_back($1);
+                      $$ = fctr;
+                    }
+ | functor_params ',' type_declaration {
+                                         auto fctr = static_cast<ASTFunctor*>($1);
+                                         fctr->args.push_back($3);
+                                         $$ = fctr;
+                                       }
  ;
 
 array_type

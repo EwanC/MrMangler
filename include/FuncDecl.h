@@ -132,7 +132,7 @@ struct ASTFunctor: ASTNode
   std::vector<const ASTNode*> args;
   const ASTNode* type; // TODO correct terminology
 
-  ASTFunctor(const ASTNode* t) : type(t)
+  ASTFunctor(): type(nullptr)
   {
   }
 
