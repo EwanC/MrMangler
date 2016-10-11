@@ -45,7 +45,7 @@ struct ASTNode
   };
 
   uint8_t quals;
-  ASTNode* pointee; // TODO make smart pointer
+  ASTNode* pointee;
   ASTNode() : quals(0), pointee(nullptr)
   {
   }
@@ -56,10 +56,15 @@ struct ASTNode
   {
     return pointee;
   }
+
+  virtual ~ASTNode()
+  {
+    delete pointee;
+  }
 };
 
 
-struct ASTReference : ASTNode
+struct ASTReference final : ASTNode
 {
   enum Indirection
   {
@@ -79,7 +84,7 @@ struct ASTReference : ASTNode
   }
 };
 
-struct ASTUserType : ASTNode
+struct ASTUserType final : ASTNode
 {
   const std::string name;
   ASTUserType(const char* name_) : name(name_)
@@ -92,7 +97,7 @@ struct ASTUserType : ASTNode
   }
 };
 
-struct ASTBuiltin : ASTNode
+struct ASTBuiltin final : ASTNode
 {
 
   enum Modifiers
@@ -113,7 +118,7 @@ struct ASTBuiltin : ASTNode
   }
 };
 
-struct ASTArray : ASTNode
+struct ASTArray final : ASTNode
 {
   uint32_t size;
 
@@ -127,7 +132,7 @@ struct ASTArray : ASTNode
   }
 };
 
-struct ASTFunctor: ASTNode
+struct ASTFunctor final: ASTNode
 {
   std::vector<const ASTNode*> args;
   const ASTNode* return_type;
@@ -140,13 +145,27 @@ struct ASTFunctor: ASTNode
   {
     return 5;
   }
+
+  virtual ~ASTFunctor() override
+  {
+    delete return_type;
+    for (auto a : args)
+      delete a;
+  }
 };
 
-struct FuncDecl
+struct FuncDecl final
 {
   const char* name;
   std::vector<const ASTNode*> params;
   const ASTNode* return_val;
+
+  ~FuncDecl()
+  {
+    delete return_val;
+    for (auto p : params)
+      delete p;
+  }
 };
 
 FuncDecl* ParseStdin(FILE* f);

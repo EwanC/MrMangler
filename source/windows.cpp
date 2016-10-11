@@ -156,7 +156,7 @@ static std::string mangle_param(const ASTNode* p)
 
 }
 
-std::string mangle_windows(const FuncDecl* decl)
+std::string mangle_windows(const std::shared_ptr<FuncDecl> decl)
 {
   std::ostringstream mangled;
   mangled << "?" << decl->name << "@";

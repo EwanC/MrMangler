@@ -67,7 +67,7 @@ int main(int argc, char** argv)
   if (argc > 1)
     target_mangler = parseArgs(argc, argv, f);
 
-  const FuncDecl* func_decl = ParseStdin(f);
+  const std::shared_ptr<FuncDecl> func_decl(ParseStdin(f));
   if (f)
     fclose(f);
 
