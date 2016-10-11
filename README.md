@@ -30,7 +30,7 @@ references is the target. Then once that's stable move onto
 features such as namespaces and templates.
 
 #### TODO
-* [ ] Function pointers
+* [X] Function pointers
 * [X] Itanium Tests
 * [ ] Windows mangling
   * [X] Store func return value
@@ -51,4 +51,7 @@ _Z20super_duper_functionPP9my_struct
 
 $ echo "AliceBob(signed char& packet)" | ./MrMangler
 _Z8AliceBobRa
+
+$ echo "int foo(float, bool (**)(char, int))" | ./MrMangler
+_Z3foofPPFbciE
 ```

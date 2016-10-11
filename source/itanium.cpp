@@ -174,10 +174,12 @@ static std::string mangle_param(const ASTNode* p)
     const ASTFunctor* f = static_cast<const ASTFunctor*>(p);
     const ASTNode* ref = f->type;
 
+    mangled.append(mangle_qualifier(ref->quals));
     mangled.push_back('P'); // one for each level of inidirection
     while (ref->pointee)
     {
       ref = ref->pointee;
+      mangled.append(mangle_qualifier(ref->quals));
       mangled.push_back('P');
     }
 

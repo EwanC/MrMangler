@@ -133,11 +133,11 @@ functor_helper
 /* TODO merge this with qualified_abstracet_decl */
 functor_ptr
  : '*' {$$ = new ASTReference(ASTReference::PTR);}
- | type_qualifier '*'{$$ = new ASTReference(ASTReference::PTR); $$->quals = $$->quals | $1;}
+ | '*' type_qualifier {$$ = new ASTReference(ASTReference::PTR); $$->quals = $$->quals | $2;}
  | functor_ptr '*' {auto r = new ASTReference(ASTReference::PTR);r->pointee = $1; $$ = r;}
- | functor_ptr type_qualifier '*' {
+ | functor_ptr '*' type_qualifier {
                                     auto r = new ASTReference(ASTReference::PTR);
-                                    r->quals = r->quals | $2;
+                                    r->quals = r->quals | $3;
                                     r->pointee = $1; $$ = r;
                                   }
  ;
