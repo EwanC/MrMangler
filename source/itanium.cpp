@@ -172,22 +172,22 @@ static std::string mangle_param(const ASTNode* p)
   else if (typeid(*p) == typeid(ASTFunctor))
   {
     const ASTFunctor* f = static_cast<const ASTFunctor*>(p);
-    const ASTNode* ref = f->type;
+    const ASTNode* indirection = f->pointee;
 
-    mangled.append(mangle_qualifier(ref->quals));
+    mangled.append(mangle_qualifier(indirection->quals));
     mangled.push_back('P'); // one for each level of inidirection
-    while (ref->pointee)
+    while (indirection->pointee)
     {
-      ref = ref->pointee;
-      mangled.append(mangle_qualifier(ref->quals));
+      indirection = indirection->pointee;
+      mangled.append(mangle_qualifier(indirection->quals));
       mangled.push_back('P');
     }
 
     mangled.push_back('F');
 
     // ref should now be the return type
-    assert(f->pointee && "no functor return type");
-    mangled.append(mangle_param(f->pointee));
+    assert(f->return_type && "no functor return type");
+    mangled.append(mangle_param(f->return_type));
 
     // functor params
     for (auto arg : f->args)

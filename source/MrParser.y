@@ -64,7 +64,7 @@ function_decl
 
 return_decl
  : type_declaration named_decl {$$ = $2; $$->return_val=$1;}
- | named_decl {$$ = $1; $$->return_val= new ASTBuiltin();}
+ | named_decl                  {$$ = $1; $$->return_val= new ASTBuiltin();}
  ;
 
 named_decl
@@ -73,34 +73,39 @@ named_decl
 
 typed_decl
  : '(' parameter_type_list ')' { $$ = $2;}
- | '(' ')' { $$ = new FuncDecl();}
+ | '(' ')'                     {$$ = new FuncDecl();}
  ;
 
 parameter_type_list
- : parameter_list ',' ELLIPSIS {$$ = $1;
-                                auto param = new ASTBuiltin();
-                                param->type_e=BuiltinType::ELLIPSIS;
-                                $$->params.push_back(param);}
- | parameter_list {$$ = $1;}
+ : parameter_list ',' ELLIPSIS {
+                                  $$ = $1;
+                                  auto param = new ASTBuiltin();
+                                  param->type_e=BuiltinType::ELLIPSIS;
+                                  $$->params.push_back(param);
+                               }
+ | parameter_list              {$$ = $1;}
  ;
 
 parameter_list
- : parameter_declaration {$$ = new FuncDecl(); $$->params.push_back($1);}
- | parameter_list ',' parameter_declaration
-    {$$ = $1; $$->params.push_back($3); }
+ : parameter_declaration                    {$$ = new FuncDecl(); $$->params.push_back($1);}
+ | parameter_list ',' parameter_declaration {$$ = $1; $$->params.push_back($3);}
  ;
 
 parameter_declaration
- : type_declaration  {$$ = $1;}
- | type_declaration functor_decl  {$$ = $2; $$->pointee = $1;}
- | type_declaration array_type {
-                                 auto p = $2;
-                                 while(p->pointee)
-                                   p = p->pointee;
-                                 p->pointee = $1;
-                                 $$=$2;
-                               }
- | type_declaration STRING_LITERAL {$$ = $1;}
+ : type_declaration                           {$$ = $1;}
+ | type_declaration functor_decl              {
+                                                auto fctr = static_cast<ASTFunctor*>($2);
+                                                fctr->return_type = $1;
+                                                $$ = fctr;
+                                              }
+ | type_declaration array_type                {
+                                                auto p = $2;
+                                                while(p->pointee)
+                                                  p = p->pointee;
+                                                p->pointee = $1;
+                                                $$ = $2;
+                                              }
+ | type_declaration STRING_LITERAL            {$$ = $1;}
  | type_declaration STRING_LITERAL array_type {
                                                 auto p = $3;
                                                 while(p->pointee)
@@ -113,14 +118,14 @@ parameter_declaration
 functor_decl
  : '(' functor_helper ')' '(' functor_params ')' {
                                                    auto fctr = static_cast<ASTFunctor*>($5);
-                                                   fctr->type = $2;
+                                                   fctr->pointee = $2;
                                                    $$ = fctr;
                                                  }
  ;
 
 functor_helper
- : functor_ptr {$$ = $1;}
- | functor_ptr STRING_LITERAL {$$ = $1;}
+ : functor_ptr                           {$$ = $1;}
+ | functor_ptr STRING_LITERAL            {$$ = $1;}
  | functor_ptr STRING_LITERAL array_type {
                                            auto p = $3; // ASTReference
                                            while(p->pointee)
@@ -130,11 +135,18 @@ functor_helper
                                          }
  ;
 
-/* TODO merge this with qualified_abstracet_decl */
+/* Ideally would merge this with qualified_abstract_decl, but grammar
+   shouldn't accept references. */
 functor_ptr
- : '*' {$$ = new ASTReference(ASTReference::PTR);}
- | '*' type_qualifier {$$ = new ASTReference(ASTReference::PTR); $$->quals = $$->quals | $2;}
- | functor_ptr '*' {auto r = new ASTReference(ASTReference::PTR);r->pointee = $1; $$ = r;}
+ : '*'                            {$$ = new ASTReference(ASTReference::PTR);}
+ | '*' type_qualifier             {
+                                    $$ = new ASTReference(ASTReference::PTR);
+                                    $$->quals = $$->quals | $2;
+                                  }
+ | functor_ptr '*'                {
+                                    auto r = new ASTReference(ASTReference::PTR);
+                                    r->pointee = $1; $$ = r;
+                                  }
  | functor_ptr '*' type_qualifier {
                                     auto r = new ASTReference(ASTReference::PTR);
                                     r->quals = r->quals | $3;
@@ -143,11 +155,11 @@ functor_ptr
  ;
 
 functor_params
- : type_declaration {
-                      auto fctr = new ASTFunctor();
-                      fctr->args.push_back($1);
-                      $$ = fctr;
-                    }
+ : type_declaration                    {
+                                         auto fctr = new ASTFunctor();
+                                         fctr->args.push_back($1);
+                                         $$ = fctr;
+                                       }
  | functor_params ',' type_declaration {
                                          auto fctr = static_cast<ASTFunctor*>($1);
                                          fctr->args.push_back($3);
@@ -156,17 +168,20 @@ functor_params
  ;
 
 array_type
- : '[' ']' {$$ = new ASTReference(ASTReference::PTR);}
+ : '[' ']'                  {$$ = new ASTReference(ASTReference::PTR);}
  | '[' ']' sized_array_type {
                                auto a = new ASTArray(0);
                                a->pointee = $3;
                                $$ = a;
                              }
- |  sized_array_type {$$ = $1;}
+ |  sized_array_type         {$$ = $1;}
  ;
 
 sized_array_type
- : '[' NUM_LITERAL ']' {auto size = std::stoul($2,nullptr); $$=new ASTArray(size);}
+ : '[' NUM_LITERAL ']'                   {
+                                           auto size = std::stoul($2,nullptr);
+                                           $$=new ASTArray(size);
+                                         }
  |  sized_array_type '[' NUM_LITERAL ']' {
                                            auto size = std::stoul($3,nullptr);
                                            auto a = new ASTArray(size);
@@ -176,8 +191,8 @@ sized_array_type
  ;
 
 type_declaration
- : qualified_user_t  {$$=$1;}
- | qualified_builtin {$$=$1;}
+ : qualified_user_t                         {$$ = $1;}
+ | qualified_builtin                        {$$ = $1;}
  | qualified_user_t qualified_abstract_decl {
                                                auto r = static_cast<ASTReference*>($2);
                                                while (r->pointee)
@@ -196,20 +211,20 @@ type_declaration
  ;
 
 qualified_abstract_decl
- : abstract_declarator type_qualifier {$$=$1; $$->quals = $$->quals | $2;}
- | abstract_declarator                {$$=$1;}
+ : abstract_declarator type_qualifier {$$ = $1; $$->quals = $$->quals | $2;}
+ | abstract_declarator                {$$ = $1;}
  ;
 
 abstract_declarator
- : '*' {$$=new ASTReference(ASTReference::PTR);}
- | '&' {$$=new ASTReference(ASTReference::REF);}
+ : '*'                         {$$ = new ASTReference(ASTReference::PTR);}
+ | '&'                         {$$ = new ASTReference(ASTReference::REF);}
  | qualified_abstract_decl '*' {auto r = new ASTReference(ASTReference::PTR);r->pointee = $1; $$ = r;}
  | qualified_abstract_decl '&' {auto r = new ASTReference(ASTReference::REF);r->pointee = $1; $$ = r;}
  ;
 
 qualified_builtin
- : type_qualifier signed_builtin  {$$=$2; $$->quals = $$->quals | $1;}
- | signed_builtin type_qualifier  {$$=$1; $$->quals = $$->quals | $2;}
+ : type_qualifier signed_builtin  {$$ = $2; $$->quals = $$->quals | $1;}
+ | signed_builtin type_qualifier  {$$ = $1; $$->quals = $$->quals | $2;}
  | signed_builtin                 {$$ = $1;}
  ;
 
@@ -220,8 +235,8 @@ signed_builtin
  ;
 
 type_sign
- : UNSIGNED {$$=ASTBuiltin::UNSIGNED;}
- | SIGNED   {$$=ASTBuiltin::SIGNED;}
+ : UNSIGNED {$$ = ASTBuiltin::UNSIGNED;}
+ | SIGNED   {$$ = ASTBuiltin::SIGNED;}
  ;
 
 qualified_user_t
@@ -231,37 +246,37 @@ qualified_user_t
  ;
 
 user_def_type
- : STRUCT STRING_LITERAL {$$=$2;}
- | UNION STRING_LITERAL  {$$=$2;}
- | ENUM STRING_LITERAL   {$$=$2;}
- | STRING_LITERAL        {$$=$1;}
+ : STRUCT STRING_LITERAL {$$ = $2;}
+ | UNION STRING_LITERAL  {$$ = $2;}
+ | ENUM STRING_LITERAL   {$$ = $2;}
+ | STRING_LITERAL        {$$ = $1;}
  ;
 
 type_qualifier
- : CONST    {$$=ASTNode::CONST;}
- | VOLATILE {$$=ASTNode::VOLATILE;}
+ : CONST    {$$ = ASTNode::CONST;}
+ | VOLATILE {$$ = ASTNode::VOLATILE;}
  ;
 
 type_builtin
- : VOID       {$$=BuiltinType::VOID;}
- | WCHAR      {$$=BuiltinType::WCHAR;}
- | BOOL       {$$=BuiltinType::BOOL;}
- | CHAR       {$$=BuiltinType::CHAR;}
- | UCHAR      {$$=BuiltinType::UCHAR;}
- | SHORT      {$$=BuiltinType::SHORT;}
- | USHORT     {$$=BuiltinType::USHORT;}
- | INT        {$$=BuiltinType::INT;}
- | UINT       {$$=BuiltinType::UINT;}
- | LONG       {$$=BuiltinType::LONG;}
- | ULONG      {$$=BuiltinType::ULONG;}
- | LONGLONG   {$$=BuiltinType::LONGLONG;}
- | INT128     {$$=BuiltinType::INT128;}
- | FLOAT      {$$=BuiltinType::FLOAT;}
- | DOUBLE     {$$=BuiltinType::DOUBLE;}
- | CHAR32     {$$=BuiltinType::CHAR32;}
- | CHAR16     {$$=BuiltinType::CHAR16;}
- | AUTO       {$$=BuiltinType::AUTO;}
- | NULLPTR    {$$=BuiltinType::NULLPTR;}
+ : VOID       {$$ = BuiltinType::VOID;}
+ | WCHAR      {$$ = BuiltinType::WCHAR;}
+ | BOOL       {$$ = BuiltinType::BOOL;}
+ | CHAR       {$$ = BuiltinType::CHAR;}
+ | UCHAR      {$$ = BuiltinType::UCHAR;}
+ | SHORT      {$$ = BuiltinType::SHORT;}
+ | USHORT     {$$ = BuiltinType::USHORT;}
+ | INT        {$$ = BuiltinType::INT;}
+ | UINT       {$$ = BuiltinType::UINT;}
+ | LONG       {$$ = BuiltinType::LONG;}
+ | ULONG      {$$ = BuiltinType::ULONG;}
+ | LONGLONG   {$$ = BuiltinType::LONGLONG;}
+ | INT128     {$$ = BuiltinType::INT128;}
+ | FLOAT      {$$ = BuiltinType::FLOAT;}
+ | DOUBLE     {$$ = BuiltinType::DOUBLE;}
+ | CHAR32     {$$ = BuiltinType::CHAR32;}
+ | CHAR16     {$$ = BuiltinType::CHAR16;}
+ | AUTO       {$$ = BuiltinType::AUTO;}
+ | NULLPTR    {$$ = BuiltinType::NULLPTR;}
  ;
 
 %%

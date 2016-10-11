@@ -130,9 +130,9 @@ struct ASTArray : ASTNode
 struct ASTFunctor: ASTNode
 {
   std::vector<const ASTNode*> args;
-  const ASTNode* type; // TODO correct terminology
+  const ASTNode* return_type;
 
-  ASTFunctor(): type(nullptr)
+  ASTFunctor(): return_type(nullptr)
   {
   }
 
