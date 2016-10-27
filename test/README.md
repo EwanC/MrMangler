@@ -8,5 +8,6 @@
 * [ ] Windows mangling tests
   * [X] Find out how
   * [ ] Clean up script
+  * [ ] Test calling convention options
   * [ ] Pass script
   * [ ] Merge w/ itanium script

@@ -56,15 +56,17 @@ static std::string mangle_type(const BuiltinType t, const uint8_t mods)
   if (BuiltinType::ULONG == t)
     return "K";
 
-  if (BuiltinType::LONGLONG == t){
+  if (BuiltinType::LONGLONG == t)
+  {
     if (ASTBuiltin::UNSIGNED & mods)
-        return "_K";
+      return "_K";
     return "_J";
   }
 
-  if (BuiltinType::INT128 == t){
+  if (BuiltinType::INT128 == t)
+  {
     if (ASTBuiltin::UNSIGNED & mods)
-        return "_M";
+      return "_M";
     return "_L";
   }
 
@@ -114,14 +116,13 @@ static std::string mangle_type(const BuiltinType t, const uint8_t mods)
 static std::string mangle_qualifier(const uint8_t qual_bitfield)
 {
   std::string mangled;
-  if ((qual_bitfield & ASTNode::CONST) &&
-      (qual_bitfield & ASTNode::VOLATILE))
-       mangled.push_back('D');
+  if ((qual_bitfield & ASTNode::CONST) && (qual_bitfield & ASTNode::VOLATILE))
+    mangled.push_back('D');
   else if (qual_bitfield & ASTNode::CONST)
-       mangled.push_back('B');
+    mangled.push_back('B');
   else if (qual_bitfield & ASTNode::VOLATILE)
-       mangled.push_back('C');
-  //else
+    mangled.push_back('C');
+  // else
   //     mangled.push_back('A');
 
   return mangled;
@@ -144,19 +145,19 @@ static std::string mangle_param(const ASTNode* p)
   else if (typeid(*p) == typeid(ASTReference))
   {
     const ASTReference* r = static_cast<const ASTReference*>(p);
-    if (r->ref_type == ASTReference::PTR) {
+    if (r->ref_type == ASTReference::PTR)
+    {
       mangled.push_back('P');
-  //    mangled.push_back('A'); // assume cdecl convention
+      //    mangled.push_back('A'); // assume cdecl convention
     }
 
     if (r->pointee)
       mangled.append(mangle_param(r->pointee)); // recursive call
   }
   return mangled;
-
 }
 
-std::string mangle_windows(const std::shared_ptr<FuncDecl> decl)
+std::string mangle_windows(const std::shared_ptr<FuncDecl> decl, const CCOption_e calling_conv)
 {
   std::ostringstream mangled;
   mangled << "?" << decl->name << "@";
@@ -164,11 +165,12 @@ std::string mangle_windows(const std::shared_ptr<FuncDecl> decl)
   // Don't support class names
   mangled << "@Y";
 
-  // TODO check calling convention
-  // __cdecl -> "A"
-  // __fastcall -> "I"
-  // __stdcall -> "G"
-  mangled << "A"; // Assume cdecl for now
+  if (CCOption_e::fastcall == calling_conv)
+    mangled << "I"; // __fastcall
+  else if (CCOption_e::stdcall == calling_conv)
+    mangled << "G"; // __stdcall
+  else
+    mangled << "A"; // __cdecl
 
   // scramble return value
   mangled << mangle_param(decl->return_val);

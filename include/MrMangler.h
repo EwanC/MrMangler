@@ -6,8 +6,15 @@
 
 struct FuncDecl;
 
-typedef std::string (*mangle_fn)(const std::shared_ptr<FuncDecl>);
+enum class CCOption_e
+{
+  cdecl,
+  fastcall,
+  stdcall
+};
 
-std::string mangle_itanium(const std::shared_ptr<FuncDecl> decl);
-std::string mangle_windows(const std::shared_ptr<FuncDecl> decl);
+typedef std::string (*mangle_fn)(const std::shared_ptr<FuncDecl>, const CCOption_e);
+
+std::string mangle_itanium(const std::shared_ptr<FuncDecl> decl, const CCOption_e);
+std::string mangle_windows(const std::shared_ptr<FuncDecl> decl, const CCOption_e);
 #endif // MR_MANGLER_H

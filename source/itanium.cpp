@@ -204,7 +204,7 @@ static std::string mangle_param(const ASTNode* p)
   return mangled;
 }
 
-std::string mangle_itanium(const std::shared_ptr<FuncDecl> decl)
+std::string mangle_itanium(const std::shared_ptr<FuncDecl> decl, const CCOption_e)
 {
   std::ostringstream mangled;
   mangled << "_Z" << strlen(decl->name) << decl->name;

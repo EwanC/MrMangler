@@ -34,7 +34,7 @@ features such as namespaces and templates.
 * [X] Itanium Tests
 * [ ] Windows mangling
   * [X] Store func return value
-  * [ ] Take calling convention as a command line option
+  * [X] Take calling convention as a command line option
   * [X] Find way to test
 * [ ] Build on host platforms other than linux
 
