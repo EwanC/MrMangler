@@ -168,7 +168,7 @@ functor_params
  ;
 
 array_type
- : '[' ']'                  {$$ = new ASTReference(ASTReference::PTR);}
+ : '[' ']'                  {$$ = new ASTArray(0);}
  | '[' ']' sized_array_type {
                                auto a = new ASTArray(0);
                                a->pointee = $3;

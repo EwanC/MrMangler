@@ -122,15 +122,13 @@ static std::string mangle_qualifier(const uint8_t qual_bitfield)
     mangled.push_back('B');
   else if (qual_bitfield & ASTNode::VOLATILE)
     mangled.push_back('C');
-  // else
-  //     mangled.push_back('A');
 
   return mangled;
 }
 
 static std::string mangle_param(const ASTNode* p)
 {
-  std::string mangled = mangle_qualifier(p->quals);
+  std::string mangled;
   if (typeid(*p) == typeid(ASTBuiltin))
   {
     const ASTBuiltin* b = static_cast<const ASTBuiltin*>(p);
@@ -148,12 +146,27 @@ static std::string mangle_param(const ASTNode* p)
     if (r->ref_type == ASTReference::PTR)
     {
       mangled.push_back('P');
-      //    mangled.push_back('A'); // assume cdecl convention
+      mangled.push_back('A'); // assume cdecl convention
     }
 
     if (r->pointee)
       mangled.append(mangle_param(r->pointee)); // recursive call
   }
+  else if (typeid(*p) == typeid(ASTArray))
+  {
+    const ASTArray* r = static_cast<const ASTArray*>(p);
+
+    mangled.push_back('Q');
+    auto qual = mangle_qualifier(r->pointee->quals);
+    if (qual.empty())
+      mangled.push_back('A');
+    else
+      mangled.append(qual);
+
+    if (r->pointee)
+      mangled.append(mangle_param(r->pointee)); // recursive call
+  }
+
   return mangled;
 }
 
