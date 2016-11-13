@@ -279,7 +279,7 @@ type_builtin
  ;
 
 %%
-FuncDecl* ParseStdin(FILE* file) {
+FuncDecl* ParseStdin() {
 #if YYDEBUG == 1
     yydebug=YYDEBUG;
 #endif

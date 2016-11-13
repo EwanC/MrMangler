@@ -2,7 +2,6 @@
 #define FUNC_DECL_H
 
 #include <cstdint>
-#include <cstdio>
 #include <string>
 #include <vector>
 
@@ -168,5 +167,5 @@ struct FuncDecl final
   }
 };
 
-FuncDecl* ParseStdin(FILE* f);
+FuncDecl* ParseStdin();
 #endif // FUNC_DECL_H
