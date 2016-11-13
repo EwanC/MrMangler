@@ -36,7 +36,7 @@ features such as namespaces and templates.
   * [X] Store func return value
   * [X] Take calling convention as a command line option
   * [X] Find way to test
-* [ ] Build on host platforms other than linux
+* [X] Build on Windows as well as Linux.
 
 ### Examples
 ```bash

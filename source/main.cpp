@@ -30,7 +30,7 @@ void printHelp()
 std::pair<mangle_fn, CCOption_e> parseArgs(int argc, char** argv, FILE*& input_file)
 {
   mangle_fn return_fn = &mangle_itanium;
-  CCOption_e return_cc = CCOption_e::cdecl;
+  CCOption_e return_cc = CCOption_e::Cdecl;
   for (int i = 1; i < argc; ++i)
   {
     if (0 == strcmp(argv[i], "--help") || 0 == strcmp(argv[i], "-h"))
@@ -58,7 +58,7 @@ std::pair<mangle_fn, CCOption_e> parseArgs(int argc, char** argv, FILE*& input_f
       const char* cc_val = argv[i] + cc_len;
       if (0 == strcmp(cc_val, "cdecl"))
       {
-        return_cc = CCOption_e::cdecl;
+        return_cc = CCOption_e::Cdecl;
       }
       else if (0 == strcmp(cc_val, "fastcall"))
       {
@@ -96,7 +96,7 @@ std::pair<mangle_fn, CCOption_e> parseArgs(int argc, char** argv, FILE*& input_f
 int main(int argc, char** argv)
 {
   mangle_fn target_mangler = &mangle_itanium;
-  CCOption_e target_cc = CCOption_e::cdecl;
+  CCOption_e target_cc = CCOption_e::Cdecl;
   FILE* f = nullptr;
 
   if (argc > 1)

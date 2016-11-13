@@ -1,8 +1,10 @@
 %option noyywrap
+%option never-interactive
 %{
 #include "FuncDecl.h"
 #include "MrParser.h"
 
+#define YY_NO_UNISTD_H
 #define YY_DECL extern "C" int yylex()
 %}
 %%

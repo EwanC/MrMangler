@@ -8,7 +8,7 @@ struct FuncDecl;
 
 enum class CCOption_e
 {
-  cdecl,
+  Cdecl,
   fastcall,
   stdcall
 };

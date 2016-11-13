@@ -10,7 +10,6 @@ void yyerror(const char *s);
 extern "C" int yylex();
 extern "C" int yyparse();
 extern "C" int yydebug;
-extern "C" FILE* yyin;
 
 FuncDecl *func_decl = nullptr;
 %}
@@ -285,13 +284,7 @@ FuncDecl* ParseStdin(FILE* file) {
     yydebug=YYDEBUG;
 #endif
 
-    if (file)
-      yyin = file;
-
-    do {
-      yyparse();
-    } while (!feof(yyin));
-
+    yyparse();
     return func_decl;
 }
 
