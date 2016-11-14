@@ -54,7 +54,7 @@ static std::string mangle_type(const BuiltinType t, const uint8_t mods)
   }
 
   if (BuiltinType::ULONG == t)
-    return "K";
+    return "_K";
 
   if (BuiltinType::LONGLONG == t)
   {
@@ -113,17 +113,16 @@ static std::string mangle_type(const BuiltinType t, const uint8_t mods)
   return "";
 }
 
-static std::string mangle_qualifier(const uint8_t qual_bitfield)
+static char mangle_qualifier(const uint8_t qual_bitfield)
 {
-  std::string mangled;
   if ((qual_bitfield & ASTNode::CONST) && (qual_bitfield & ASTNode::VOLATILE))
-    mangled.push_back('D');
+    return 'D';
   else if (qual_bitfield & ASTNode::CONST)
-    mangled.push_back('B');
+    return 'B';
   else if (qual_bitfield & ASTNode::VOLATILE)
-    mangled.push_back('C');
+    return 'C';
 
-  return mangled;
+  return 0;
 }
 
 static std::string mangle_param(const ASTNode* p)
@@ -146,7 +145,13 @@ static std::string mangle_param(const ASTNode* p)
     if (r->ref_type == ASTReference::PTR)
     {
       mangled.push_back('P');
-      mangled.push_back('A'); // assume cdecl convention
+      char qual = mangle_qualifier(r->pointee->quals);
+      if (0 != qual)
+        mangled.push_back(qual);
+      else
+        mangled.push_back('A'); // assume cdecl convention
+    } else if (r->ref_type == ASTReference::REF) {
+      mangled.push_back('R');
     }
 
     if (r->pointee)
@@ -158,10 +163,10 @@ static std::string mangle_param(const ASTNode* p)
 
     mangled.push_back('Q');
     auto qual = mangle_qualifier(r->pointee->quals);
-    if (qual.empty())
+    if (0 == qual)
       mangled.push_back('A');
     else
-      mangled.append(qual);
+      mangled.push_back(qual);
 
     if (r->pointee)
       mangled.append(mangle_param(r->pointee)); // recursive call
