@@ -76,39 +76,6 @@ static std::string mangle_type(const BuiltinType t, const uint8_t mods)
   if (BuiltinType::DOUBLE == t)
     return "N";
 
-  //  if (BuiltinType::FLOAT80 == t)
-  //    return "e";
-
-  //  if (BuiltinType::FLOAT128 == t)
-  //    return "g";
-
-  //  if (BuiltinType::ELLIPSIS == t)
-  //    return "Z";
-
-  //  if (BuiltinType::IEEE754_16 == t)
-  //    return "Dh";
-
-  //  if (BuiltinType::IEEE754_32 == t)
-  //    return "Df";
-
-  //  if (BuiltinType::IEEE754_64 == t)
-  //    return "Dd";
-
-  //  if (BuiltinType::IEEE754_128 == t)
-  //    return "De";
-
-  //  if (BuiltinType::CHAR32 == t)
-  //    return "Di";
-
-  //  if (BuiltinType::CHAR16 == t)
-  //    return "Ds";
-
-  //  if (BuiltinType::AUTO == t)
-  //    return "Da";
-
-  //  if (BuiltinType::NULLPTR == t)
-  //    return "Dn";
-
   assert(false && "Unknown type");
   return "";
 }
@@ -151,7 +118,7 @@ static std::string mangle_param(const ASTNode* p)
       else
         mangled.push_back('A'); // assume cdecl convention
     } else if (r->ref_type == ASTReference::REF) {
-      mangled.push_back('R');
+      mangled.append("AA");
     }
 
     if (r->pointee)

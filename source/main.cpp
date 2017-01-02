@@ -13,17 +13,16 @@ void printHelp()
   std::cout << std::endl;
 
   std::cout << "Optional args:" << std::endl;
-  std::cout << "  [-h|--help]                        Print this message." << std::endl;
+  std::cout << "  [-h|--help]" << std::string(24, ' ') << "Print this message." << std::endl;
 
-  std::cout << "  [-i|--itanium]                     Use itanium mangling."
-               "  This is the defualt mangling scheme."
+  std::cout << "  [-i|--itanium]" << std::string(21, ' ') << "Use itanium mangling."
+                                                             "  This is the defualt mangling scheme."
             << std::endl;
 
-  // TODO replace whitespace chars with std::whitespace(xxx)
-  std::cout << "  [-w|--windows]                     Use windows decoration." << std::endl;
+  std::cout << "  [-w|--windows]" << std::string(21, ' ') << "Use windows decoration." << std::endl;
 
-  std::cout << "  --cc={cdecl, fastcall, stdcall}   "
-            << " Calling convention used for msvc mangling, defaults to cdecl." << std::endl;
+  std::cout << "  --cc={cdecl, fastcall, stdcall}" << std::string(4, ' ')
+            << "Calling convention used for msvc mangling, defaults to cdecl." << std::endl;
 }
 
 std::pair<mangle_fn, CCOption_e> parseArgs(int argc, char** argv)
@@ -87,7 +86,7 @@ int main(int argc, char** argv)
 
   if (argc > 1)
   {
-    auto parsed_pair = parseArgs(argc, argv); // TODO structured bindings?
+    auto parsed_pair = parseArgs(argc, argv); // structured bindings in future
     target_mangler = parsed_pair.first;
     target_cc = parsed_pair.second;
   }
