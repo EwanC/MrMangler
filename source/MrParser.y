@@ -172,7 +172,7 @@ array_type
                                auto a = new ASTArray(0);
                                a->pointee = $3;
                                $$ = a;
-                             }
+                            }
  |  sized_array_type         {$$ = $1;}
  ;
 
@@ -183,8 +183,10 @@ sized_array_type
                                          }
  |  sized_array_type '[' NUM_LITERAL ']' {
                                            auto size = std::stoul($3,nullptr);
-                                           auto a = new ASTArray(size);
-                                           $1->pointee = a;
+                                           auto r = static_cast<ASTNode*>($1);
+                                           while (r->pointee)
+                                              r = r->pointee;
+                                           r->pointee = new ASTArray(size);
                                            $$ = $1;
                                          }
  ;
