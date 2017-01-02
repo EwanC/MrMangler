@@ -113,7 +113,9 @@ static std::string mangle_param(const ASTNode* p, bool isReturnType)
   {
     const ASTUserType* u = static_cast<const ASTUserType*>(p);
     const std::string& name = u->name;
-    mangled.append(std::to_string(name.length()).append(name));
+    mangled.push_back('T');
+    mangled.append(u->name);
+    mangled.append("@@");
   }
   else if (typeid(*p) == typeid(ASTReference))
   {
@@ -129,7 +131,12 @@ static std::string mangle_param(const ASTNode* p, bool isReturnType)
     }
     else if (r->ref_type == ASTReference::REF)
     {
-      mangled.append("AA");
+      mangled.push_back('A');
+      char qual = mangle_qualifier(r->pointee->quals);
+      if (0 != qual)
+        mangled.push_back(qual);
+      else
+        mangled.push_back('A');
     }
 
     if (r->pointee)
