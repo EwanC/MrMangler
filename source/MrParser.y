@@ -23,7 +23,7 @@ FuncDecl *func_decl = nullptr;
 }
 
 %token VOID WCHAR BOOL CHAR SHORT INT
-%token UCHAR USHORT UINT ULONG
+%token UCHAR SCHAR USHORT UINT ULONG
 %token LONG LONGLONG INT128 FLOAT DOUBLE
 %token CHAR32 CHAR16 AUTO NULLPTR
 %token CONST VOLATILE
@@ -262,6 +262,7 @@ type_builtin
  | BOOL       {$$ = BuiltinType::BOOL;}
  | CHAR       {$$ = BuiltinType::CHAR;}
  | UCHAR      {$$ = BuiltinType::UCHAR;}
+ | SCHAR      {$$ = BuiltinType::SCHAR;}
  | SHORT      {$$ = BuiltinType::SHORT;}
  | USHORT     {$$ = BuiltinType::USHORT;}
  | INT        {$$ = BuiltinType::INT;}

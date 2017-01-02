@@ -26,6 +26,9 @@ static std::string mangle_type(const BuiltinType t, const uint8_t mods)
   if (BuiltinType::UCHAR == t)
     return "E";
 
+  if (BuiltinType::SCHAR == t)
+    return "C";
+
   if (BuiltinType::SHORT == t)
   {
     if (ASTBuiltin::UNSIGNED & mods)
@@ -122,7 +125,11 @@ static std::string mangle_param(const ASTNode* p, bool isReturnType)
     const ASTReference* r = static_cast<const ASTReference*>(p);
     if (r->ref_type == ASTReference::PTR)
     {
-      mangled.push_back('P');
+      if (0 != ASTNode::CONST & r->quals) {
+        mangled.push_back('Q'); // use array sym for const pointers
+      } else {
+        mangled.push_back('P');
+      }
       char qual = mangle_qualifier(r->pointee->quals);
       if (0 != qual)
         mangled.push_back(qual);

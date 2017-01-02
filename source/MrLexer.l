@@ -12,7 +12,7 @@
 "wchar_t"   {return WCHAR;}
 "bool"      {return BOOL;}
 "char"      {return CHAR;}
-"int8_t"    {return CHAR;}
+"int8_t"    {return SCHAR;}
 "uint8_t"   {return UCHAR;}
 "short"     {return SHORT;}
 "int16_t"   {return SHORT;}

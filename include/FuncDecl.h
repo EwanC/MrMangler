@@ -12,6 +12,7 @@ enum class BuiltinType
   BOOL,
   CHAR,
   UCHAR,
+  SCHAR,
   SHORT,
   USHORT,
   INT,

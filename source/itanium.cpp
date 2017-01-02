@@ -27,6 +27,9 @@ static std::string mangle_type(const BuiltinType t, const uint8_t mods)
   if (BuiltinType::UCHAR == t)
     return "h";
 
+  if (BuiltinType::SCHAR == t)
+    return "a";
+
   if (BuiltinType::SHORT == t)
   {
     if (ASTBuiltin::UNSIGNED & mods)
