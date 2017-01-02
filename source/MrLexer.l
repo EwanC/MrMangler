@@ -22,7 +22,7 @@
 "uint32_t"  {return UINT;}
 "long long" {return LONGLONG;}
 "long"      {return LONG;}
-"int64_t"   {return LONG;}
+"int64_t"   {return INT64;}
 "uint64_t"  {return ULONG;}
 "int128"    {return INT128;}
 "float"     {return FLOAT;}

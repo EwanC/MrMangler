@@ -20,6 +20,7 @@ enum class BuiltinType
   LONG,
   ULONG,
   LONGLONG,
+  INT64,
   INT128,
   FLOAT,
   DOUBLE,

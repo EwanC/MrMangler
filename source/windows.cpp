@@ -57,6 +57,9 @@ static std::string mangle_type(const BuiltinType t, const uint8_t mods)
     return "J";
   }
 
+  if (BuiltinType::INT64 == t)
+    return "_J";
+
   if (BuiltinType::ULONG == t)
     return "_K";
 

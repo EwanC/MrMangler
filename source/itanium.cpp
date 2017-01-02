@@ -28,7 +28,7 @@ static std::string mangle_type(const BuiltinType t, const uint8_t mods)
     return "h";
 
   if (BuiltinType::SCHAR == t)
-    return "a";
+    return "h";
 
   if (BuiltinType::SHORT == t)
   {
@@ -56,6 +56,9 @@ static std::string mangle_type(const BuiltinType t, const uint8_t mods)
       return "m";
     return "l";
   }
+
+  if (BuiltinType::INT64 == t)
+    return "l";
 
   if (BuiltinType::ULONG == t)
     return "m";
