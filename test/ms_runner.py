@@ -67,7 +67,8 @@ def run_clang_cl(func_sig):
         return_code = child_nm.returncode
         for line in output[0].split():
             line = line.decode()
-            if line[0] == '?':
+            # Avoid struct constructors
+            if line[0] == '?' and line[1] != '?':
                 symbol = line
                 break
 

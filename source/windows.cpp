@@ -1,3 +1,4 @@
+#include <algorithm>
 #include <cassert>
 #include <sstream>
 #include <typeinfo>
@@ -95,6 +96,31 @@ static char mangle_qualifier(const uint8_t qual_bitfield)
   return 0;
 }
 
+static std::string mangle_number(unsigned int numberwang)
+{
+  std::string mangled;
+  if (numberwang == 0)
+  {
+    mangled = "a@";
+  }
+  else if (numberwang >= 1 && numberwang <= 10)
+  {
+    mangled = std::to_string(numberwang - 1);
+  }
+  else
+  {
+    // from llvm
+    // numbers that are not encoded as decimal digits are represented as nibbles
+    // in the range of ascii characters 'a' to 'p'.
+    for (; numberwang != 0; numberwang >>= 4)
+    {
+      mangled.push_back('A' + (numberwang & 0xf));
+    }
+    std::reverse(mangled.begin(), mangled.end());
+  }
+  return mangled;
+}
+
 static std::string mangle_param(const ASTNode* p, bool isReturnType)
 {
   std::string mangled;
@@ -116,6 +142,10 @@ static std::string mangle_param(const ASTNode* p, bool isReturnType)
   {
     const ASTUserType* u = static_cast<const ASTUserType*>(p);
     const std::string& name = u->name;
+    if (isReturnType)
+    {
+      mangled.append("?A");
+    }
     mangled.push_back('T');
     mangled.append(u->name);
     mangled.append("@@");
@@ -125,9 +155,12 @@ static std::string mangle_param(const ASTNode* p, bool isReturnType)
     const ASTReference* r = static_cast<const ASTReference*>(p);
     if (r->ref_type == ASTReference::PTR)
     {
-      if (0 != ASTNode::CONST & r->quals) {
+      if (0 != ASTNode::CONST & r->quals)
+      {
         mangled.push_back('Q'); // use array sym for const pointers
-      } else {
+      }
+      else
+      {
         mangled.push_back('P');
       }
       char qual = mangle_qualifier(r->pointee->quals);
@@ -153,15 +186,45 @@ static std::string mangle_param(const ASTNode* p, bool isReturnType)
   {
     const ASTArray* r = static_cast<const ASTArray*>(p);
 
-    mangled.push_back('Q');
-    auto qual = mangle_qualifier(r->pointee->quals);
-    if (0 == qual)
-      mangled.push_back('A');
-    else
-      mangled.push_back(qual);
+    // Lookahead to calculate dimensions
+    assert(r->pointee && "array needs a type");
+    unsigned int dimensions = 1;
+    const ASTArray* ptr = static_cast<const ASTArray*>(r->pointee);
+    while (typeid(*ptr) == typeid(ASTArray))
+    {
+      assert(ptr->pointee);
+      ptr = static_cast<const ASTArray*>(ptr->pointee);
+      ++dimensions;
+    }
 
-    if (r->pointee)
-      mangled.append(mangle_param(r->pointee, false)); // recursive call
+    for (unsigned int dim = 1; dim <= dimensions; ++dim)
+    {
+      if (1 == dim)
+      {
+        mangled.push_back('Q');
+        auto qual = mangle_qualifier(r->pointee->quals);
+        if (0 == qual)
+          mangled.push_back('A');
+        else
+          mangled.push_back(qual);
+      }
+      else if (2 == dim)
+      {
+        r = static_cast<const ASTArray*>(r->pointee);
+        mangled.push_back('Y');
+        mangled.append(std::to_string(dimensions - 2));
+
+        mangled.append(mangle_number(r->size));
+        mangled.push_back('@');
+      }
+      else
+      {
+        r = static_cast<const ASTArray*>(r->pointee);
+        mangled.append(mangle_number(r->size));
+        mangled.push_back('@');
+      }
+    }
+    mangled.append(mangle_param(r->pointee, false)); // recursive call
   }
 
   return mangled;
