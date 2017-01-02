@@ -92,12 +92,21 @@ static char mangle_qualifier(const uint8_t qual_bitfield)
   return 0;
 }
 
-static std::string mangle_param(const ASTNode* p)
+static std::string mangle_param(const ASTNode* p, bool isReturnType)
 {
   std::string mangled;
   if (typeid(*p) == typeid(ASTBuiltin))
   {
     const ASTBuiltin* b = static_cast<const ASTBuiltin*>(p);
+    if (isReturnType)
+    {
+      char qual = mangle_qualifier(b->quals);
+      if (0 != qual)
+      {
+        mangled.push_back('?');
+        mangled.push_back(qual);
+      }
+    }
     mangled.append(mangle_type(b->type_e, b->mods));
   }
   else if (typeid(*p) == typeid(ASTUserType))
@@ -117,12 +126,14 @@ static std::string mangle_param(const ASTNode* p)
         mangled.push_back(qual);
       else
         mangled.push_back('A'); // assume cdecl convention
-    } else if (r->ref_type == ASTReference::REF) {
+    }
+    else if (r->ref_type == ASTReference::REF)
+    {
       mangled.append("AA");
     }
 
     if (r->pointee)
-      mangled.append(mangle_param(r->pointee)); // recursive call
+      mangled.append(mangle_param(r->pointee, false)); // recursive call
   }
   else if (typeid(*p) == typeid(ASTArray))
   {
@@ -136,7 +147,7 @@ static std::string mangle_param(const ASTNode* p)
       mangled.push_back(qual);
 
     if (r->pointee)
-      mangled.append(mangle_param(r->pointee)); // recursive call
+      mangled.append(mangle_param(r->pointee, false)); // recursive call
   }
 
   return mangled;
@@ -158,19 +169,34 @@ std::string mangle_windows(const std::shared_ptr<FuncDecl> decl, const CCOption_
     mangled << "A"; // __cdecl
 
   // scramble return value
-  mangled << mangle_param(decl->return_val);
+  mangled << mangle_param(decl->return_val, true);
 
   const std::vector<const ASTNode*>& params = decl->params;
+  bool voidParam = false;
+  if (!params.empty())
+  {
+    const auto first = params[0];
+    if (typeid(*first) == typeid(ASTBuiltin))
+    {
+      const ASTBuiltin* b = static_cast<const ASTBuiltin*>(first);
+      voidParam = BuiltinType::VOID == b->type_e;
+    }
+  }
+
   if (params.empty())
   {
     mangled << "X";
-    return mangled.str();
   }
 
   for (auto p : params)
-    mangled << mangle_param(p);
+    mangled << mangle_param(p, false);
 
-  mangled << "@Z";
+  if (!params.empty() && !voidParam)
+  {
+    mangled << "@";
+  }
+
+  mangled << "Z";
 
   return mangled.str();
 }
