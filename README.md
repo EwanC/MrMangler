@@ -26,17 +26,9 @@ The project is still in early stages on development, so
 is not expected to compile on platforms other than Linux.
 
 Right now C language mangling with some C++ features like
-references is the target. Then once that's stable move onto
-features such as namespaces and templates.
-
-#### TODO
-* [X] Function pointers
-* [X] Itanium Tests
-* [ ] Windows mangling
-  * [X] Store func return value
-  * [X] Take calling convention as a command line option
-  * [X] Find way to test
-* [X] Build on Windows as well as Linux.
+references is the target. To see exactly what's supported
+look at the file [test/inputs.txt](test/inputs.txt), containing the inputs
+tested against.
 
 ### Examples
 ```bash
@@ -54,4 +46,7 @@ _Z8AliceBobRa
 
 $ echo "int foo(float, bool (**)(char, int))" | ./MrMangler
 _Z3foofPPFbciE
+
+$ echo "const int16_t func_1(void)" | ./MrMangler -w
+?func_1@@YA?BFXZ
 ```
