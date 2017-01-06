@@ -149,7 +149,15 @@ static std::string mangle_param(const ASTNode* p, bool isReturnType)
     {
       mangled.append("?A");
     }
-    mangled.push_back('T');
+    if (u->complexType == ASTUserType::Complex_e::CLASS) {
+      mangled.push_back('V');
+    } else if (u->complexType == ASTUserType::Complex_e::UNION) {
+      mangled.push_back('T');
+    } else if (u->complexType == ASTUserType::Complex_e::ENUM) {
+      mangled.push_back('W');
+    } else {
+      mangled.push_back('U'); // U for struct
+    }
     mangled.append(u->name);
     mangled.append("@@");
   }
@@ -228,7 +236,38 @@ static std::string mangle_param(const ASTNode* p, bool isReturnType)
       }
     }
     mangled.append(mangle_param(r->pointee, false)); // recursive call
+  } else if (typeid(*p) == typeid(ASTFunctor))
+  {
+    //const ASTFunctor* f = static_cast<const ASTFunctor*>(p);
+    //const ASTNode* indirection = f->pointee;
+
+    //mangled.append(mangle_qualifier(indirection->quals));
+    //mangled.push_back('P'); // one for each level of indirection
+    //while (indirection->pointee)
+    //{
+    //  indirection = indirection->pointee;
+    //  mangled.append(mangle_qualifier(indirection->quals));
+    //  mangled.push_back('P');
+    //}
+
+    //mangled.push_back('F');
+
+    //// ref should now be the return type
+    //assert(f->return_type && "no functor return type");
+    //mangled.append(mangle_param(f->return_type));
+
+    //// functor params
+    //for (auto arg : f->args)
+    //{
+    //  mangled.append(mangle_param(arg));
+    //}
+    //mangled.push_back('E');
   }
+  else
+  {
+    assert(false && "Unknown parameter type");
+  }
+
 
   return mangled;
 }

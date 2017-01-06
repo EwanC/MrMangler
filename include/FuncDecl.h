@@ -87,8 +87,17 @@ struct ASTReference final : ASTNode
 
 struct ASTUserType final : ASTNode
 {
+  enum Complex_e
+  {
+    DEFAULT = 0,
+    CLASS = 0x1 << 1,
+    STRUCT = 0x1 << 2,
+    UNION= 0x1 << 3,
+    ENUM= 0x1 << 4
+  };
+
   const std::string name;
-  ASTUserType(const char* name_) : name(name_)
+  ASTUserType(const char* name_) : complexType(DEFAULT), name(name_)
   {
   }
 
@@ -96,6 +105,8 @@ struct ASTUserType final : ASTNode
   {
     return 2;
   }
+
+  Complex_e complexType;
 };
 
 struct ASTBuiltin final : ASTNode

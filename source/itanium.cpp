@@ -181,7 +181,7 @@ static std::string mangle_param(const ASTNode* p)
     const ASTNode* indirection = f->pointee;
 
     mangled.append(mangle_qualifier(indirection->quals));
-    mangled.push_back('P'); // one for each level of inidirection
+    mangled.push_back('P'); // one for each level of indirection
     while (indirection->pointee)
     {
       indirection = indirection->pointee;
@@ -204,7 +204,7 @@ static std::string mangle_param(const ASTNode* p)
   }
   else
   {
-    assert(false && "Unknown prameter type");
+    assert(false && "Unknown parameter type");
   }
 
   return mangled;

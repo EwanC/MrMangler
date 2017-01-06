@@ -19,6 +19,7 @@ FuncDecl *func_decl = nullptr;
   char *sval;
   FuncDecl* decl;
   ASTNode* ast_node;
+  ASTUserType* ast_user_t;
   BuiltinType builtin;
 }
 
@@ -41,7 +42,7 @@ FuncDecl *func_decl = nullptr;
 %type<ast_node> functor_decl functor_helper functor_params functor_ptr
 %type<ival> type_qualifier type_sign
 %type<builtin> type_builtin
-%type<sval> user_def_type
+%type<ast_user_t> user_def_type
 
 %%
 
@@ -241,16 +242,16 @@ type_sign
  ;
 
 qualified_user_t
- : type_qualifier user_def_type  {$$ = new ASTUserType($2); $$->quals = $$->quals | $1;}
- | user_def_type type_qualifier  {$$ = new ASTUserType($1); $$->quals = $$->quals | $2;}
- | user_def_type                 {$$ = new ASTUserType($1);}
+ : type_qualifier user_def_type  {$$ = $2; $$->quals = $$->quals | $1;}
+ | user_def_type type_qualifier  {$$ = $1; $$->quals = $$->quals | $2;}
+ | user_def_type                 {$$ = $1;}
  ;
 
 user_def_type
- : STRUCT STRING_LITERAL {$$ = $2;}
- | UNION STRING_LITERAL  {$$ = $2;}
- | ENUM STRING_LITERAL   {$$ = $2;}
- | STRING_LITERAL        {$$ = $1;}
+ : STRUCT STRING_LITERAL {$$ = new ASTUserType($2); $$->complexType = ASTUserType::Complex_e::STRUCT;}
+ | UNION STRING_LITERAL  {$$ = new ASTUserType($2); $$->complexType = ASTUserType::Complex_e::UNION;}
+ | ENUM STRING_LITERAL   {$$ = new ASTUserType($2); $$->complexType = ASTUserType::Complex_e::ENUM;}
+ | STRING_LITERAL        {$$ = new ASTUserType($1);}
  ;
 
 type_qualifier
