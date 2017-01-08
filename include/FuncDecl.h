@@ -51,9 +51,9 @@ struct ASTNode
   {
   }
 
-  virtual uint8_t getID() = 0;
+  virtual uint8_t getID() const = 0;
 
-  virtual ASTNode* getPointee()
+  virtual ASTNode* getPointee() const
   {
     return pointee;
   }
@@ -79,7 +79,7 @@ struct ASTReference final : ASTNode
   {
   }
 
-  virtual uint8_t getID() override
+  virtual uint8_t getID() const override
   {
     return 1;
   }
@@ -101,7 +101,7 @@ struct ASTUserType final : ASTNode
   {
   }
 
-  virtual uint8_t getID() override
+  virtual uint8_t getID() const override
   {
     return 2;
   }
@@ -124,7 +124,7 @@ struct ASTBuiltin final : ASTNode
   ASTBuiltin() : mods(0), type_e(BuiltinType::VOID)
   {
   }
-  virtual uint8_t getID() override
+  virtual uint8_t getID() const override
   {
     return 3;
   }
@@ -138,7 +138,7 @@ struct ASTArray final : ASTNode
   {
   }
 
-  virtual uint8_t getID() override
+  virtual uint8_t getID() const override
   {
     return 4;
   }
@@ -153,7 +153,7 @@ struct ASTFunctor final: ASTNode
   {
   }
 
-  virtual uint8_t getID() override
+  virtual uint8_t getID() const override
   {
     return 5;
   }

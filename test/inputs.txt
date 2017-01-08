@@ -52,6 +52,7 @@ int32_t * func_27(int8_t  p_28, const uint64_t * p_29, uint16_t  p_30, int32_t *
 int64_t  func_41(int64_t  p_42, uint32_t  p_43, uint16_t  p_44, uint16_t  p_45, const uint16_t  p_46)
 int32_t * func_49(int32_t * const  p_50)
 uint64_t * func_60(uint64_t * p_61, uint64_t * p_62)
+uint64_t * func_61(uint64_t * p_61, uint64_t * p_62, uint64_t * p_63)
 uint64_t  func_35(union U1  p_36);
 int16_t  func_1(void);
 union U1  func_11(int32_t * p_12);

@@ -149,13 +149,20 @@ static std::string mangle_param(const ASTNode* p, bool isReturnType)
     {
       mangled.append("?A");
     }
-    if (u->complexType == ASTUserType::Complex_e::CLASS) {
+    if (u->complexType == ASTUserType::Complex_e::CLASS)
+    {
       mangled.push_back('V');
-    } else if (u->complexType == ASTUserType::Complex_e::UNION) {
+    }
+    else if (u->complexType == ASTUserType::Complex_e::UNION)
+    {
       mangled.push_back('T');
-    } else if (u->complexType == ASTUserType::Complex_e::ENUM) {
+    }
+    else if (u->complexType == ASTUserType::Complex_e::ENUM)
+    {
       mangled.push_back('W');
-    } else {
+    }
+    else
+    {
       mangled.push_back('U'); // U for struct
     }
     mangled.append(u->name);
@@ -236,38 +243,38 @@ static std::string mangle_param(const ASTNode* p, bool isReturnType)
       }
     }
     mangled.append(mangle_param(r->pointee, false)); // recursive call
-  } else if (typeid(*p) == typeid(ASTFunctor))
+  }
+  else if (typeid(*p) == typeid(ASTFunctor))
   {
-    //const ASTFunctor* f = static_cast<const ASTFunctor*>(p);
-    //const ASTNode* indirection = f->pointee;
+    // const ASTFunctor* f = static_cast<const ASTFunctor*>(p);
+    // const ASTNode* indirection = f->pointee;
 
-    //mangled.append(mangle_qualifier(indirection->quals));
-    //mangled.push_back('P'); // one for each level of indirection
-    //while (indirection->pointee)
+    // mangled.append(mangle_qualifier(indirection->quals));
+    // mangled.push_back('P'); // one for each level of indirection
+    // while (indirection->pointee)
     //{
     //  indirection = indirection->pointee;
     //  mangled.append(mangle_qualifier(indirection->quals));
     //  mangled.push_back('P');
     //}
 
-    //mangled.push_back('F');
+    // mangled.push_back('F');
 
     //// ref should now be the return type
-    //assert(f->return_type && "no functor return type");
-    //mangled.append(mangle_param(f->return_type));
+    // assert(f->return_type && "no functor return type");
+    // mangled.append(mangle_param(f->return_type));
 
     //// functor params
-    //for (auto arg : f->args)
+    // for (auto arg : f->args)
     //{
     //  mangled.append(mangle_param(arg));
     //}
-    //mangled.push_back('E');
+    // mangled.push_back('E');
   }
   else
   {
     assert(false && "Unknown parameter type");
   }
-
 
   return mangled;
 }
@@ -307,8 +314,29 @@ std::string mangle_windows(const std::shared_ptr<FuncDecl> decl, const CCOption_
     mangled << "X";
   }
 
+  // Used for back references
+  std::vector<std::string> paramHashes;
   for (auto p : params)
-    mangled << mangle_param(p, false);
+  {
+    std::string mangledStr = mangle_param(p, false);
+    if (mangledStr.length() == 1)
+    {
+      mangled << mangledStr;
+      continue;
+    }
+
+    auto pos = std::find(paramHashes.begin(), paramHashes.end(), mangledStr);
+    if (paramHashes.end() != pos)
+    {
+      unsigned int index = pos - paramHashes.begin();
+      mangled << std::to_string(index);
+    }
+    else
+    {
+      mangled << mangledStr;
+      paramHashes.push_back(mangledStr);
+    }
+  }
 
   if (!params.empty() && !voidParam)
   {
