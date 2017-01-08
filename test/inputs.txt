@@ -59,12 +59,12 @@ union U1  func_11(int32_t * p_12);
 const int32_t ** func_16(int32_t * const * p_17, uint8_t  p_18, uint64_t  p_19, uint32_t  p_20, int32_t * p_21);
 int8_t  func_26(int32_t * p_27);
 int16_t  func_38(union U1  p_39);
-union U1  func_40(uint32_t  p_41, uint32_t  p_42, union U1  p_43, union U1  p_44);
-union U1  func_49(int64_t  p_50, int32_t * p_51, int32_t  p_52, union U1  p_53);
+union U1  func_40(uint32_t  p_41, uint32_t  p_42, double p_43, struct S0 &  p_44);
+union U1  func_49(int64_t  p_50, int32_t * p_51, int32_t  p_52, union U2  *p_53);
 uint8_t  func_64(int32_t ** p_65, const int32_t ** p_66, int32_t * p_67, int32_t * p_68, const uint32_t  p_69);
 int32_t ** func_70(int64_t  p_71, int32_t ** p_72, uint8_t  p_73);
 int32_t ** func_74(int32_t * p_75, const uint64_t  p_76, int32_t  p_77);
-struct S0  func_10(uint32_t  p_11, const struct S0  p_12, uint64_t  p_13);
+struct S0  func_10(uint32_t  p_11, const union U0**  p_12, uint64_t  p_13);
 int32_t  func_16(uint32_t  p_17, uint16_t  p_18);
 uint8_t  func_22(uint8_t  p_23, int64_t  p_24, uint16_t  p_25, int32_t  p_26, uint8_t  p_27);
 int8_t  func_28(uint32_t  p_29, struct S0  p_30, uint64_t * p_31);
@@ -74,6 +74,9 @@ uint64_t ** func_48(int32_t  p_49);
 const uint64_t * func_53(uint32_t  p_54, struct S0  p_55, int32_t  p_56, uint64_t  p_57, uint64_t * p_58);
 struct S0  func_60(const uint64_t ** const  p_61, uint64_t ** p_62);
 int foo(int (*functionPtr)(int, int))
+int foo(int (*functionPtr)(void))
+int foo(void (*functionPtr)(void))
+int foo(void (*functionPtr)(int))
 int foo(int (*const)(int, int))
 int foo(int (*functionPtr[3])(int, int))
 int foo(float, int (*functionPtr[3])(int, int))

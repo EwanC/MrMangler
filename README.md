@@ -21,6 +21,11 @@ calling library function like `__cxa_demangle`.
 ### Test status
 [![Build Status](https://travis-ci.org/EwanC/MrMangler.svg)](https://travis-ci.org/EwanC/MrMangler) Master
 
+### TODO
+
+* Use Windows calling convention information
+* Windows Struct & Union back references
+
 ### Status
 The project is still in early stages on development, so
 is not expected to compile on platforms other than Linux.

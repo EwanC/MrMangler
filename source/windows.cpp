@@ -246,30 +246,51 @@ static std::string mangle_param(const ASTNode* p, bool isReturnType)
   }
   else if (typeid(*p) == typeid(ASTFunctor))
   {
-    // const ASTFunctor* f = static_cast<const ASTFunctor*>(p);
-    // const ASTNode* indirection = f->pointee;
+    mangled.append("P6"); // this means function pointer apparently 
+    mangled.push_back('A'); // _cdecl TODO use actual callig conv
 
-    // mangled.append(mangle_qualifier(indirection->quals));
-    // mangled.push_back('P'); // one for each level of indirection
-    // while (indirection->pointee)
+    const ASTFunctor* f = static_cast<const ASTFunctor*>(p);
+
+    // ref should now be the return type
+    assert(f->return_type && "no functor return type");
+    mangled.append(mangle_param(f->return_type, true));
+
+    //const ASTNode* indirection = f->pointee;
+    //while (indirection->pointee)
     //{
     //  indirection = indirection->pointee;
     //  mangled.append(mangle_qualifier(indirection->quals));
-    //  mangled.push_back('P');
     //}
 
+    // mangled.append(mangle_qualifier(indirection->quals));
+    // mangled.push_back('P'); // one for each level of indirection
+    
     // mangled.push_back('F');
 
-    //// ref should now be the return type
-    // assert(f->return_type && "no functor return type");
-    // mangled.append(mangle_param(f->return_type));
 
-    //// functor params
-    // for (auto arg : f->args)
-    //{
-    //  mangled.append(mangle_param(arg));
-    //}
-    // mangled.push_back('E');
+    bool voidParam = false;
+    if (!f->args.empty())
+    {
+      const auto first = f->args[0];
+      if (typeid(*first) == typeid(ASTBuiltin))
+      {
+        const ASTBuiltin* b = static_cast<const ASTBuiltin*>(first);
+        voidParam = BuiltinType::VOID == b->type_e;
+      }
+    }
+
+    // functor params
+    for (auto arg : f->args)
+    {
+      mangled.append(mangle_param(arg, false));
+    }
+
+    if (!f->args.empty() && !voidParam)
+    {
+      mangled.push_back('@');
+    }
+
+    mangled.push_back('Z');
   }
   else
   {
