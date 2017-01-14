@@ -251,7 +251,8 @@ static std::string mangle_param(const ASTNode* p, bool isReturnType)
     assert(f->pointee && "no functor type");
     const ASTNode* indirection = f->pointee;
 
-    if (indirection->quals & ASTNode::CONST) {
+    if ((typeid(*indirection) == typeid(ASTArray)) ||
+        (indirection->quals & ASTNode::CONST)) {
         mangled.push_back('Q');
     } else {
         mangled.push_back('P');

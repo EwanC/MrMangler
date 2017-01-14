@@ -25,6 +25,8 @@ calling library function like `__cxa_demangle`.
 
 * Use Windows calling convention information
 * Windows Struct & Union back references
+* Comment & Format
+* Clean up test scripts
 
 ### Status
 The project is still in early stages on development, so
