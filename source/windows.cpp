@@ -246,27 +246,41 @@ static std::string mangle_param(const ASTNode* p, bool isReturnType)
   }
   else if (typeid(*p) == typeid(ASTFunctor))
   {
-    mangled.append("P6"); // this means function pointer apparently 
-    mangled.push_back('A'); // _cdecl TODO use actual callig conv
-
     const ASTFunctor* f = static_cast<const ASTFunctor*>(p);
+
+    assert(f->pointee && "no functor type");
+    const ASTNode* indirection = f->pointee;
+
+    if (indirection->quals & ASTNode::CONST) {
+        mangled.push_back('Q');
+    } else {
+        mangled.push_back('P');
+    }
+
+    while (indirection->pointee)
+    {
+      auto pointee = indirection->pointee;
+      char qual = mangle_qualifier(pointee->quals);
+      if (qual) {
+        mangled.push_back(qual);
+      } else {
+        mangled.push_back('A'); // _cdecl TODO use actual callig conv
+      }
+
+      indirection = pointee;
+      if (indirection->quals & ASTNode::CONST) {
+        mangled.push_back('Q');
+      } else {
+        mangled.push_back('P');
+      }
+    }
+    
+    mangled.push_back('6');  // this means function pointer apparently
+    mangled.push_back('A'); // _cdecl TODO use actual callig conv
 
     // ref should now be the return type
     assert(f->return_type && "no functor return type");
     mangled.append(mangle_param(f->return_type, true));
-
-    //const ASTNode* indirection = f->pointee;
-    //while (indirection->pointee)
-    //{
-    //  indirection = indirection->pointee;
-    //  mangled.append(mangle_qualifier(indirection->quals));
-    //}
-
-    // mangled.append(mangle_qualifier(indirection->quals));
-    // mangled.push_back('P'); // one for each level of indirection
-    
-    // mangled.push_back('F');
-
 
     bool voidParam = false;
     if (!f->args.empty())
