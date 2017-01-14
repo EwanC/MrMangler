@@ -116,7 +116,14 @@ parameter_declaration
  ;
 
 functor_decl
- : '(' functor_helper ')' '(' functor_params ')' {
+  : '(' functor_helper ')' '(' ')' {   auto fctr = new ASTFunctor();
+                                       auto voidBuiltin = new ASTBuiltin();
+                                       voidBuiltin->type_e = BuiltinType::VOID;
+                                       fctr->args.push_back(voidBuiltin);
+                                       fctr->pointee = $2;
+                                       $$ = fctr;
+                                   }
+ | '(' functor_helper ')' '(' functor_params ')' {
                                                    auto fctr = static_cast<ASTFunctor*>($5);
                                                    fctr->pointee = $2;
                                                    $$ = fctr;

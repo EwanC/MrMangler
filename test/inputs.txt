@@ -75,6 +75,7 @@ const uint64_t * func_53(uint32_t  p_54, struct S0  p_55, int32_t  p_56, uint64_
 struct S0  func_60(const uint64_t ** const  p_61, uint64_t ** p_62);
 int foo(int (*functionPtr)(int, int))
 int foo(int (*functionPtr)(void))
+int foo(void (*functionPtr)())
 int foo(void (*functionPtr)(void))
 int foo(void (*functionPtr)(int))
 int foo(int (*const)(int, int))
