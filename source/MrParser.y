@@ -72,16 +72,16 @@ named_decl
  ;
 
 typed_decl
- : '(' parameter_type_list ')' { $$ = $2;}
+ : '(' parameter_type_list ')' {$$ = $2;}
  | '(' ')'                     {$$ = new FuncDecl();}
  ;
 
 parameter_type_list
  : parameter_list ',' ELLIPSIS {
-                                  $$ = $1;
-                                  auto param = new ASTBuiltin();
-                                  param->type_e=BuiltinType::ELLIPSIS;
-                                  $$->params.push_back(param);
+                                $$ = $1;
+                                auto param = new ASTBuiltin();
+                                param->type_e=BuiltinType::ELLIPSIS;
+                                $$->params.push_back(param);
                                }
  | parameter_list              {$$ = $1;}
  ;
@@ -116,12 +116,13 @@ parameter_declaration
  ;
 
 functor_decl
-  : '(' functor_helper ')' '(' ')' {   auto fctr = new ASTFunctor();
-                                       auto voidBuiltin = new ASTBuiltin();
-                                       voidBuiltin->type_e = BuiltinType::VOID;
-                                       fctr->args.push_back(voidBuiltin);
-                                       fctr->pointee = $2;
-                                       $$ = fctr;
+  : '(' functor_helper ')' '(' ')' {
+                                    auto fctr = new ASTFunctor();
+                                    auto voidBuiltin = new ASTBuiltin();
+                                    voidBuiltin->type_e = BuiltinType::VOID;
+                                    fctr->args.push_back(voidBuiltin);
+                                    fctr->pointee = $2;
+                                    $$ = fctr;
                                    }
  | '(' functor_helper ')' '(' functor_params ')' {
                                                    auto fctr = static_cast<ASTFunctor*>($5);
@@ -177,9 +178,9 @@ functor_params
 array_type
  : '[' ']'                  {$$ = new ASTArray(0);}
  | '[' ']' sized_array_type {
-                               auto a = new ASTArray(0);
-                               a->pointee = $3;
-                               $$ = a;
+                              auto a = new ASTArray(0);
+                              a->pointee = $3;
+                              $$ = a;
                             }
  |  sized_array_type         {$$ = $1;}
  ;
@@ -203,11 +204,11 @@ type_declaration
  : qualified_user_t                         {$$ = $1;}
  | qualified_builtin                        {$$ = $1;}
  | qualified_user_t qualified_abstract_decl {
-                                               auto r = static_cast<ASTReference*>($2);
-                                               while (r->pointee)
-                                                 r = static_cast<ASTReference*>(r->pointee);
-                                               r->pointee = $1;
-                                               $$ = $2;
+                                              auto r = static_cast<ASTReference*>($2);
+                                              while (r->pointee)
+                                                r = static_cast<ASTReference*>(r->pointee);
+                                              r->pointee = $1;
+                                              $$ = $2;
                                              }
 
  | qualified_builtin qualified_abstract_decl {

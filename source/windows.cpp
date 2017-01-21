@@ -103,22 +103,17 @@ static std::string mangle_number(unsigned int numberwang)
 {
   std::string mangled;
   if (numberwang == 0)
-  {
     mangled = "a@";
-  }
   else if (numberwang >= 1 && numberwang <= 10)
-  {
     mangled = std::to_string(numberwang - 1);
-  }
   else
   {
     // from llvm
     // numbers that are not encoded as decimal digits are represented as nibbles
     // in the range of ascii characters 'a' to 'p'.
     for (; numberwang != 0; numberwang >>= 4)
-    {
       mangled.push_back('A' + (numberwang & 0xf));
-    }
+
     std::reverse(mangled.begin(), mangled.end());
   }
   return mangled;
@@ -132,7 +127,7 @@ static std::string mangle_param(const ASTNode* p, bool isReturnType)
     const ASTBuiltin* b = static_cast<const ASTBuiltin*>(p);
     if (isReturnType)
     {
-      char qual = mangle_qualifier(b->quals);
+      const char qual = mangle_qualifier(b->quals);
       if (0 != qual)
       {
         mangled.push_back('?');
@@ -145,26 +140,18 @@ static std::string mangle_param(const ASTNode* p, bool isReturnType)
   {
     const ASTUserType* u = static_cast<const ASTUserType*>(p);
     const std::string& name = u->name;
+
     if (isReturnType)
-    {
       mangled.append("?A");
-    }
     if (u->complexType == ASTUserType::Complex_e::CLASS)
-    {
       mangled.push_back('V');
-    }
     else if (u->complexType == ASTUserType::Complex_e::UNION)
-    {
       mangled.push_back('T');
-    }
     else if (u->complexType == ASTUserType::Complex_e::ENUM)
-    {
       mangled.push_back('W');
-    }
     else
-    {
       mangled.push_back('U'); // U for struct
-    }
+
     mangled.append(u->name);
     mangled.append("@@");
   }
@@ -174,14 +161,11 @@ static std::string mangle_param(const ASTNode* p, bool isReturnType)
     if (r->ref_type == ASTReference::PTR)
     {
       if (0 != ASTNode::CONST & r->quals)
-      {
         mangled.push_back('Q'); // use array sym for const pointers
-      }
       else
-      {
         mangled.push_back('P');
-      }
-      char qual = mangle_qualifier(r->pointee->quals);
+
+      const char qual = mangle_qualifier(r->pointee->quals);
       if (0 != qual)
         mangled.push_back(qual);
       else
@@ -190,7 +174,7 @@ static std::string mangle_param(const ASTNode* p, bool isReturnType)
     else if (r->ref_type == ASTReference::REF)
     {
       mangled.push_back('A');
-      char qual = mangle_qualifier(r->pointee->quals);
+      const char qual = mangle_qualifier(r->pointee->quals);
       if (0 != qual)
         mangled.push_back(qual);
       else
@@ -220,7 +204,7 @@ static std::string mangle_param(const ASTNode* p, bool isReturnType)
       if (1 == dim)
       {
         mangled.push_back('Q');
-        auto qual = mangle_qualifier(r->pointee->quals);
+        const char qual = mangle_qualifier(r->pointee->quals);
         if (0 == qual)
           mangled.push_back('A');
         else
@@ -251,32 +235,28 @@ static std::string mangle_param(const ASTNode* p, bool isReturnType)
     assert(f->pointee && "no functor type");
     const ASTNode* indirection = f->pointee;
 
-    if ((typeid(*indirection) == typeid(ASTArray)) ||
-        (indirection->quals & ASTNode::CONST)) {
-        mangled.push_back('Q');
-    } else {
-        mangled.push_back('P');
-    }
+    if ((typeid(*indirection) == typeid(ASTArray)) || (indirection->quals & ASTNode::CONST))
+      mangled.push_back('Q');
+    else
+      mangled.push_back('P');
 
     while (indirection->pointee)
     {
       auto pointee = indirection->pointee;
-      char qual = mangle_qualifier(pointee->quals);
-      if (qual) {
+      const char qual = mangle_qualifier(pointee->quals);
+      if (qual)
         mangled.push_back(qual);
-      } else {
+      else
         mangled.push_back('A'); // _cdecl TODO use actual callig conv
-      }
 
       indirection = pointee;
-      if (indirection->quals & ASTNode::CONST) {
+      if (indirection->quals & ASTNode::CONST)
         mangled.push_back('Q');
-      } else {
+      else
         mangled.push_back('P');
-      }
     }
-    
-    mangled.push_back('6');  // this means function pointer apparently
+
+    mangled.push_back('6'); // this means function pointer apparently
     mangled.push_back('A'); // _cdecl TODO use actual callig conv
 
     // ref should now be the return type
@@ -296,14 +276,10 @@ static std::string mangle_param(const ASTNode* p, bool isReturnType)
 
     // functor params
     for (auto arg : f->args)
-    {
       mangled.append(mangle_param(arg, false));
-    }
 
     if (!f->args.empty() && !voidParam)
-    {
       mangled.push_back('@');
-    }
 
     mangled.push_back('Z');
   }
@@ -346,9 +322,7 @@ std::string mangle_windows(const std::shared_ptr<FuncDecl> decl, const CCOption_
   }
 
   if (params.empty())
-  {
     mangled << "X";
-  }
 
   // Used for back references
   std::vector<std::string> paramHashes;
@@ -361,10 +335,10 @@ std::string mangle_windows(const std::shared_ptr<FuncDecl> decl, const CCOption_
       continue;
     }
 
-    auto pos = std::find(paramHashes.begin(), paramHashes.end(), mangledStr);
+    const auto pos = std::find(paramHashes.begin(), paramHashes.end(), mangledStr);
     if (paramHashes.end() != pos)
     {
-      unsigned int index = pos - paramHashes.begin();
+      const unsigned int index = pos - paramHashes.begin();
       mangled << std::to_string(index);
     }
     else
@@ -375,9 +349,7 @@ std::string mangle_windows(const std::shared_ptr<FuncDecl> decl, const CCOption_
   }
 
   if (!params.empty() && !voidParam)
-  {
     mangled << "@";
-  }
 
   mangled << "Z";
 

@@ -197,9 +197,8 @@ static std::string mangle_param(const ASTNode* p)
 
     // functor params
     for (auto arg : f->args)
-    {
       mangled.append(mangle_param(arg));
-    }
+
     mangled.push_back('E');
   }
   else

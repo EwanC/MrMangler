@@ -55,21 +55,13 @@ std::pair<mangle_fn, CCOption_e> parseArgs(int argc, char** argv)
     {
       const char* cc_val = argv[i] + cc_len;
       if (0 == strcmp(cc_val, "cdecl"))
-      {
         return_cc = CCOption_e::Cdecl;
-      }
       else if (0 == strcmp(cc_val, "fastcall"))
-      {
         return_cc = CCOption_e::fastcall;
-      }
       else if (0 == strcmp(cc_val, "stdcall"))
-      {
         return_cc = CCOption_e::stdcall;
-      }
       else
-      {
         std::cout << "Unknown calling convention '" << cc_val << "' defaulting to cdecl." << std::endl;
-      }
       continue;
     }
 
@@ -96,5 +88,5 @@ int main(int argc, char** argv)
   const std::string mangled_str = target_mangler(func_decl, target_cc);
   std::cout << mangled_str << std::endl;
 
-  return 0;
+  return 0; // return success
 }
