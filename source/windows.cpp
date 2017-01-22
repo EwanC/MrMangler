@@ -6,6 +6,15 @@
 #include "FuncDecl.h"
 #include "MrMangler.h"
 
+inline char getCallingConv(const CCOption_e calling_conv)
+{
+  if (CCOption_e::fastcall == calling_conv)
+    return 'I'; // __fastcall
+  else if (CCOption_e::stdcall == calling_conv)
+    return 'G'; // __stdcall
+  return 'A';   // __cdecl
+}
+
 static std::string mangle_type(const BuiltinType t, const uint8_t mods)
 {
   if (BuiltinType::VOID == t)
@@ -119,7 +128,7 @@ static std::string mangle_number(unsigned int numberwang)
   return mangled;
 }
 
-static std::string mangle_param(const ASTNode* p, bool isReturnType)
+static std::string mangle_param(const ASTNode* p, bool isReturnType, const CCOption_e calling_conv)
 {
   std::string mangled;
   if (typeid(*p) == typeid(ASTBuiltin))
@@ -182,7 +191,7 @@ static std::string mangle_param(const ASTNode* p, bool isReturnType)
     }
 
     if (r->pointee)
-      mangled.append(mangle_param(r->pointee, false)); // recursive call
+      mangled.append(mangle_param(r->pointee, false, calling_conv)); // recursive call
   }
   else if (typeid(*p) == typeid(ASTArray))
   {
@@ -226,7 +235,7 @@ static std::string mangle_param(const ASTNode* p, bool isReturnType)
         mangled.push_back('@');
       }
     }
-    mangled.append(mangle_param(r->pointee, false)); // recursive call
+    mangled.append(mangle_param(r->pointee, false, calling_conv)); // recursive call
   }
   else if (typeid(*p) == typeid(ASTFunctor))
   {
@@ -247,7 +256,7 @@ static std::string mangle_param(const ASTNode* p, bool isReturnType)
       if (qual)
         mangled.push_back(qual);
       else
-        mangled.push_back('A'); // _cdecl TODO use actual callig conv
+        mangled.push_back('A');
 
       indirection = pointee;
       if (indirection->quals & ASTNode::CONST)
@@ -257,11 +266,11 @@ static std::string mangle_param(const ASTNode* p, bool isReturnType)
     }
 
     mangled.push_back('6'); // this means function pointer apparently
-    mangled.push_back('A'); // _cdecl TODO use actual callig conv
+    mangled.push_back(getCallingConv(calling_conv));
 
     // ref should now be the return type
     assert(f->return_type && "no functor return type");
-    mangled.append(mangle_param(f->return_type, true));
+    mangled.append(mangle_param(f->return_type, true, calling_conv));
 
     bool voidParam = false;
     if (!f->args.empty())
@@ -276,7 +285,7 @@ static std::string mangle_param(const ASTNode* p, bool isReturnType)
 
     // functor params
     for (auto arg : f->args)
-      mangled.append(mangle_param(arg, false));
+      mangled.append(mangle_param(arg, false, calling_conv));
 
     if (!f->args.empty() && !voidParam)
       mangled.push_back('@');
@@ -293,21 +302,15 @@ static std::string mangle_param(const ASTNode* p, bool isReturnType)
 
 std::string mangle_windows(const std::shared_ptr<FuncDecl> decl, const CCOption_e calling_conv)
 {
-  std::ostringstream mangled;
-  mangled << "?" << decl->name << "@";
+  std::ostringstream mangledStream;
+  mangledStream << "?" << decl->name << "@";
 
   // Don't support class names
-  mangled << "@Y";
-
-  if (CCOption_e::fastcall == calling_conv)
-    mangled << "I"; // __fastcall
-  else if (CCOption_e::stdcall == calling_conv)
-    mangled << "G"; // __stdcall
-  else
-    mangled << "A"; // __cdecl
+  mangledStream << "@Y";
+  mangledStream << getCallingConv(calling_conv);
 
   // scramble return value
-  mangled << mangle_param(decl->return_val, true);
+  mangledStream << mangle_param(decl->return_val, true, calling_conv);
 
   const std::vector<const ASTNode*>& params = decl->params;
   bool voidParam = false;
@@ -322,16 +325,16 @@ std::string mangle_windows(const std::shared_ptr<FuncDecl> decl, const CCOption_
   }
 
   if (params.empty())
-    mangled << "X";
+    mangledStream << "X";
 
   // Used for back references
   std::vector<std::string> paramHashes;
   for (auto p : params)
   {
-    std::string mangledStr = mangle_param(p, false);
+    std::string mangledStr = mangle_param(p, false, calling_conv);
     if (mangledStr.length() == 1)
     {
-      mangled << mangledStr;
+      mangledStream << mangledStr;
       continue;
     }
 
@@ -339,19 +342,19 @@ std::string mangle_windows(const std::shared_ptr<FuncDecl> decl, const CCOption_
     if (paramHashes.end() != pos)
     {
       const unsigned int index = pos - paramHashes.begin();
-      mangled << std::to_string(index);
+      mangledStream << std::to_string(index);
     }
     else
     {
-      mangled << mangledStr;
+      mangledStream << mangledStr;
       paramHashes.push_back(mangledStr);
     }
   }
 
   if (!params.empty() && !voidParam)
-    mangled << "@";
+    mangledStream << "@";
 
-  mangled << "Z";
+  mangledStream << "Z";
 
-  return mangled.str();
+  return mangledStream.str();
 }

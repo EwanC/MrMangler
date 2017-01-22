@@ -23,9 +23,8 @@ calling library function like `__cxa_demangle`.
 
 ### TODO
 
-* Use Windows calling convention information
 * Windows Struct & Union back references
-* Comment & Format
+* doxy-comment & Format
 * Clean up test scripts
 
 ### Status
