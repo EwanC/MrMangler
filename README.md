@@ -24,8 +24,7 @@ calling library function like `__cxa_demangle`.
 ### TODO
 
 * Windows Struct & Union back references
-* doxy-comment & Format
-* Clean up test scripts
+* Add doxygen comments
 
 ### Status
 The project is still in early stages on development, so
@@ -55,4 +54,7 @@ _Z3foofPPFbciE
 
 $ echo "const int16_t func_1(void)" | ./MrMangler -w
 ?func_1@@YA?BFXZ
+
+$ echo "int foo(int (**const*)())" | ./MrMangler -w --cc=fastcall
+?foo@@YIHPBQAP6IHXZ@Z
 ```

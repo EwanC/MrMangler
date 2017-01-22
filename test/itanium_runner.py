@@ -85,7 +85,10 @@ def validate_environment(filename, exe):
 
 
 def main():
-    '''Script entry point'''
+    '''Script entry point
+
+    Returns(int): number of fails
+    '''
     parser = argparse.ArgumentParser(
         description='Test runner for MrMangler using Linux c++filt '
                     'to verify manglings.')
@@ -136,5 +139,8 @@ def main():
         for (expected, actual) in fails:
             print('\tExpected "{0}", was "{1}"'.format(expected, actual))
 
+        return len(fails)
+
 if __name__ == '__main__':
-    main()
+    ret_code = main()
+    sys.exit(ret_code)
