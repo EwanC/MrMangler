@@ -15,6 +15,7 @@ inline char getCallingConv(const CCOption_e calling_conv)
   return 'A';   // __cdecl
 }
 
+// Returns mangled symbol for a builtin type given an optional sign modifier
 static std::string mangle_type(const BuiltinType t, const uint8_t mods)
 {
   if (BuiltinType::VOID == t)
@@ -96,6 +97,7 @@ static std::string mangle_type(const BuiltinType t, const uint8_t mods)
   return "";
 }
 
+// Mangle type qualifier, or 0 if none present
 static char mangle_qualifier(const uint8_t qual_bitfield)
 {
   if ((qual_bitfield & ASTNode::CONST) && (qual_bitfield & ASTNode::VOLATILE))
@@ -108,6 +110,7 @@ static char mangle_qualifier(const uint8_t qual_bitfield)
   return 0;
 }
 
+// Returns mangled symbol for a number
 static std::string mangle_number(unsigned int numberwang)
 {
   std::string mangled;
@@ -117,8 +120,8 @@ static std::string mangle_number(unsigned int numberwang)
     mangled = std::to_string(numberwang - 1);
   else
   {
-    // from llvm
-    // numbers that are not encoded as decimal digits are represented as nibbles
+    // From LLVM:
+    // Numbers that are not encoded as decimal digits are represented as nibbles
     // in the range of ascii characters 'a' to 'p'.
     for (; numberwang != 0; numberwang >>= 4)
       mangled.push_back('A' + (numberwang & 0xf));
@@ -128,6 +131,7 @@ static std::string mangle_number(unsigned int numberwang)
   return mangled;
 }
 
+// Returns mangled parameter or return type, depending on second param
 static std::string mangle_param(const ASTNode* p, bool isReturnType, const CCOption_e calling_conv)
 {
   std::string mangled;
@@ -300,6 +304,7 @@ static std::string mangle_param(const ASTNode* p, bool isReturnType, const CCOpt
   return mangled;
 }
 
+// Top level function for mangling a function signature AST using MSVC mangling rules.
 std::string mangle_windows(const std::shared_ptr<FuncDecl> decl, const CCOption_e calling_conv)
 {
   std::ostringstream mangledStream;
@@ -309,10 +314,11 @@ std::string mangle_windows(const std::shared_ptr<FuncDecl> decl, const CCOption_
   mangledStream << "@Y";
   mangledStream << getCallingConv(calling_conv);
 
-  // scramble return value
+  // mangle return value
   mangledStream << mangle_param(decl->return_val, true, calling_conv);
 
   const std::vector<const ASTNode*>& params = decl->params;
+  // Check if first parameter is void
   bool voidParam = false;
   if (!params.empty())
   {
@@ -327,17 +333,22 @@ std::string mangle_windows(const std::shared_ptr<FuncDecl> decl, const CCOption_
   if (params.empty())
     mangledStream << "X";
 
-  // Used for back references
+  // Used to store back references
   std::vector<std::string> paramHashes;
+  
+  // iterate over function parameters using a back reference if we've
+  // already mangled a type otherwise appending param mangling.
   for (auto p : params)
   {
     std::string mangledStr = mangle_param(p, false, calling_conv);
+    // Don't use back references for manglings of length 1
     if (mangledStr.length() == 1)
     {
       mangledStream << mangledStr;
       continue;
     }
 
+    // Use back reference if one exists, otherwise append mangled param to symbol
     const auto pos = std::find(paramHashes.begin(), paramHashes.end(), mangledStr);
     if (paramHashes.end() != pos)
     {

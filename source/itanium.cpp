@@ -6,6 +6,7 @@
 #include "FuncDecl.h"
 #include "MrMangler.h"
 
+// Return mangled symbol for a builtin type with optional signed modifier
 static std::string mangle_type(const BuiltinType t, const uint8_t mods)
 {
   if (BuiltinType::VOID == t)
@@ -120,6 +121,7 @@ static std::string mangle_type(const BuiltinType t, const uint8_t mods)
   return "";
 }
 
+// returns mangled symbol for type qualifier
 static std::string mangle_qualifier(const uint8_t qual_bitfield)
 {
   std::string mangled;
@@ -131,6 +133,7 @@ static std::string mangle_qualifier(const uint8_t qual_bitfield)
   return mangled;
 }
 
+// Given the AST node for a function parameter returns the mangled symbol
 static std::string mangle_param(const ASTNode* p)
 {
   std::string mangled = mangle_qualifier(p->quals);
@@ -142,6 +145,7 @@ static std::string mangle_param(const ASTNode* p)
   else if (typeid(*p) == typeid(ASTUserType))
   {
     const ASTUserType* u = static_cast<const ASTUserType*>(p);
+    // Get name of user defined type
     const std::string& name = u->name;
     mangled.append(std::to_string(name.length()).append(name));
   }
@@ -154,6 +158,7 @@ static std::string mangle_param(const ASTNode* p)
       mangled.push_back('R');
     else if (r->ref_type == ASTReference::RVALREF)
       mangled.push_back('O');
+    // Mangle type this AST node is referencing
     if (r->pointee)
       mangled.append(mangle_param(r->pointee)); // recursive call
   }
@@ -209,9 +214,11 @@ static std::string mangle_param(const ASTNode* p)
   return mangled;
 }
 
+// Entry point for itanium mangling given a function declaration AST
 std::string mangle_itanium(const std::shared_ptr<FuncDecl> decl, const CCOption_e)
 {
   std::ostringstream mangled;
+  // Mangle function name
   mangled << "_Z" << strlen(decl->name) << decl->name;
 
   const std::vector<const ASTNode*>& params = decl->params;

@@ -3,20 +3,22 @@
 #include <typeinfo>
 #include <string>
 #include "FuncDecl.h"
+
 #define YYDEBUG 0
-void yyerror(const char *s);
+
+void yyerror(const char* s);
 
 // Defined in FLEX
 extern "C" int yylex();
 extern "C" int yyparse();
 extern "C" int yydebug;
 
-FuncDecl *func_decl = nullptr;
+FuncDecl* func_decl = nullptr;
 %}
 
 %union {
   int ival;
-  char *sval;
+  char* sval;
   FuncDecl* decl;
   ASTNode* ast_node;
   ASTUserType* ast_user_t;
@@ -40,13 +42,13 @@ FuncDecl *func_decl = nullptr;
 %type<ast_node> array_type sized_array_type
 %type<ast_node> qualified_user_t  qualified_abstract_decl  qualified_builtin
 %type<ast_node> functor_decl functor_helper functor_params functor_ptr
-%type<ival> type_qualifier type_sign
-%type<builtin> type_builtin
 %type<ast_user_t> user_def_type
+%type<builtin> type_builtin
+%type<ival> type_qualifier type_sign
 
 %%
 
-/* don't throw an error when reading files with multiple
+/* Don't throw an error when reading files with multiple
    function signatures, but only return one */
 function_decls
  : function_decl
@@ -54,7 +56,7 @@ function_decls
  ;
 
 /* Accept static even though functions with internal
-   linkage won't have symbols */
+   linkage won't generate symbols */
 function_decl
  : return_decl             {func_decl = $1;}
  | return_decl ';'         {func_decl = $1;}
@@ -63,8 +65,8 @@ function_decl
  ;
 
 return_decl
- : type_declaration named_decl {$$ = $2; $$->return_val=$1;}
- | named_decl                  {$$ = $1; $$->return_val= new ASTBuiltin();}
+ : type_declaration named_decl {$$ = $2; $$->return_val = $1;}
+ | named_decl                  {$$ = $1; $$->return_val = new ASTBuiltin();}
  ;
 
 named_decl
@@ -78,10 +80,10 @@ typed_decl
 
 parameter_type_list
  : parameter_list ',' ELLIPSIS {
-                                $$ = $1;
-                                auto param = new ASTBuiltin();
-                                param->type_e=BuiltinType::ELLIPSIS;
-                                $$->params.push_back(param);
+                                 $$ = $1;
+                                 auto param = new ASTBuiltin();
+                                 param->type_e = BuiltinType::ELLIPSIS;
+                                 $$->params.push_back(param);
                                }
  | parameter_list              {$$ = $1;}
  ;
@@ -182,14 +184,14 @@ array_type
                               a->pointee = $3;
                               $$ = a;
                             }
- |  sized_array_type         {$$ = $1;}
+ |  sized_array_type        {$$ = $1;}
  ;
 
 sized_array_type
- : '[' NUM_LITERAL ']'                   {
-                                           auto size = std::stoul($2,nullptr);
-                                           $$=new ASTArray(size);
-                                         }
+ : '[' NUM_LITERAL ']'     {
+                             auto size = std::stoul($2,nullptr);
+                             $$ = new ASTArray(size);
+                           }
  |  sized_array_type '[' NUM_LITERAL ']' {
                                            auto size = std::stoul($3,nullptr);
                                            auto r = static_cast<ASTNode*>($1);
@@ -294,14 +296,14 @@ type_builtin
 %%
 FuncDecl* ParseStdin() {
 #if YYDEBUG == 1
-    yydebug=YYDEBUG;
+  yydebug = YYDEBUG;
 #endif
 
-    yyparse();
-    return func_decl;
+  yyparse();
+  return func_decl;
 }
 
-void yyerror(const char*s) {
-   printf("Exiting, parse error '%s'\n", s);
-   exit(1);
+void yyerror(const char* s) {
+  printf("Exiting, parse error '%s'\n", s);
+  exit(1);
 }

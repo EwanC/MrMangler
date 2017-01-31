@@ -24,7 +24,6 @@ calling library function like `__cxa_demangle`.
 ### TODO
 
 * Windows Struct & Union back references
-* Add doxygen comments
 
 ### Status
 The project is still in early stages on development, so

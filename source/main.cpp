@@ -6,17 +6,17 @@
 
 void printHelp()
 {
-  std::cout << "Usage: MrMangler [optional args] <input file>" << std::endl;
+  std::cout << "Usage: MrMangler [optional arguments] <input file>" << std::endl;
 
   std::cout << "Mangle function declaration from standard input." << std::endl;
   std::cout << "Example: echo \"foo(float a)\" | ./MrMangler" << std::endl;
   std::cout << std::endl;
 
-  std::cout << "Optional args:" << std::endl;
+  std::cout << "Optional arguments:" << std::endl;
   std::cout << "  [-h|--help]" << std::string(24, ' ') << "Print this message." << std::endl;
 
   std::cout << "  [-i|--itanium]" << std::string(21, ' ') << "Use itanium mangling."
-                                                             "  This is the defualt mangling scheme."
+                                                             "  This is the default mangling scheme."
             << std::endl;
 
   std::cout << "  [-w|--windows]" << std::string(21, ' ') << "Use windows decoration." << std::endl;
@@ -34,7 +34,7 @@ std::pair<mangle_fn, CCOption_e> parseArgs(int argc, char** argv)
     if (0 == strcmp(argv[i], "--help") || 0 == strcmp(argv[i], "-h"))
     {
       printHelp();
-      exit(0);
+      exit(0); // exit after printing help
     }
 
     if (0 == strcmp(argv[i], "--windows") || 0 == strcmp(argv[i], "-w"))
@@ -43,7 +43,7 @@ std::pair<mangle_fn, CCOption_e> parseArgs(int argc, char** argv)
       continue;
     }
 
-    if (0 == strcmp(argv[i], "--Itanium") || 0 == strcmp(argv[i], "-i"))
+    if (0 == strcmp(argv[i], "--itanium") || 0 == strcmp(argv[i], "-i"))
     {
       return_fn = mangle_itanium;
       continue;
@@ -73,9 +73,11 @@ std::pair<mangle_fn, CCOption_e> parseArgs(int argc, char** argv)
 
 int main(int argc, char** argv)
 {
+  // Default to itanium mangling with cdecl calling convention
   mangle_fn target_mangler = &mangle_itanium;
   CCOption_e target_cc = CCOption_e::Cdecl;
 
+  // Read command line arguments
   if (argc > 1)
   {
     auto parsed_pair = parseArgs(argc, argv); // structured bindings in future
@@ -83,8 +85,10 @@ int main(int argc, char** argv)
     target_cc = parsed_pair.second;
   }
 
+  // Parse user input into FuncDecl AST
   const std::shared_ptr<FuncDecl> func_decl(ParseStdin());
 
+  // Generate mangled symbol from AST and print to stdout
   const std::string mangled_str = target_mangler(func_decl, target_cc);
   std::cout << mangled_str << std::endl;
 
